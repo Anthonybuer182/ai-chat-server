@@ -1,2 +1,2 @@
 # ai-chat-server
-Extremely smooth chat
+Extremely smooth ai chat

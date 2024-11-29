@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
 
-http_router = APIRouter()
+router = APIRouter()
 
-@http_router.get("/status")
+@router.get("/status")
 async def status():
     return {"status": "ok", "message": "RealChar is running smoothly!"}

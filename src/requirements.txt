@@ -1,0 +1,5 @@
+fastapi[all]==0.103.2
+psycopg2-binary==2.9.9       # PostgreSQL adapter for Python
+pydantic==2.8.1              # Pydantic for data validation (useful for FastAPI)
+SQLAlchemy==2.0.21           # ORM for PostgreSQL (if you're using SQLAlchemy with FastAPI)
+httpx==0.25.0              # Optional: Can be used for HTTP requests

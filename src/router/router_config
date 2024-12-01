@@ -1,0 +1,10 @@
+from fastapi import FastAPI
+from router import user, character, chat
+
+def register_routers(app: FastAPI):
+    """
+    注册所有路由
+    """
+    app.include_router(user.router, prefix="/users", tags=["Users"])
+    app.include_router(character.router, prefix="/characters", tags=["Characters"])
+    app.include_router(chat.router, prefix="/chats", tags=["Chats"])

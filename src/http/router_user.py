@@ -6,8 +6,11 @@ from typing import Optional
 from fastapi.security import OAuth2PasswordBearer
 router = APIRouter()
 
-@router.get("/status")
-async def status():
+@router.post("/login")
+async def login():
+    return {"status": "ok", "message": "RealChar is running smoothly!"}
+@router.post("/register")
+async def register():
     return {"status": "ok", "message": "RealChar is running smoothly!"}
 
 from pydantic import BaseModel

@@ -1,7 +1,7 @@
 
 from fastapi import FastAPI
-from src.router.http_router import router
 from fastapi.middleware.cors import CORSMiddleware
+from src.http.router_config import combined_router
 
 app =FastAPI()
 
@@ -12,4 +12,4 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.include_router(router)
+app.include_router(combined_router)

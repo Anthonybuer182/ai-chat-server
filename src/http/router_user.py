@@ -1,7 +1,8 @@
 
+from math import exp
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-from src.http.base_response import BaseResponse
+from src.http.base_response import BaseResponse,success_response,failure_response
 from src.model.user import Token
 router = APIRouter()
 @router.post("/token")
@@ -18,11 +19,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),resp
     #     SECRET_KEY,
     #     algorithm=ALGORITHM,
     # )
-    return {
-        "code": 200,
-        "message": "Success",
-        "data": {}
-    }
+    return success_response(data=Token(access_token=form_data.username, token_type=form_data.password,expires_in=200))
 @router.post("/register")
 async def register():
     return {"status": "ok", "message": "RealChar is running smoothly!"}

@@ -1,4 +1,4 @@
-from fastapi import FastAPI,APIRouter
+from fastapi import APIRouter
 from src.http import router_character, router_chat, router_conversation, router_user
 combined_router = APIRouter()
 

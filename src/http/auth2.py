@@ -3,15 +3,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 import jwt
 from datetime import datetime, timedelta
 from typing import Optional
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
-from src.http.base_response import BaseResponse
-from src.model.user import User
 router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
+def get_current_user(token: str = Depends(oauth2_scheme)) -> OAuth2PasswordRequestForm:
     payload = decode_access_token(token)
     if payload is None:
         raise HTTPException(
@@ -19,7 +17,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
             detail="Invalid token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return User(username=payload["sub"])
+    return OAuth2PasswordRequestForm(username=payload["sub"])
 
 SECRET_KEY = os.getenv("SECRET_KEY", "default-secret-key")
 ALGORITHM = "HS256"

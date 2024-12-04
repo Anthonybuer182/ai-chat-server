@@ -3,10 +3,10 @@ from math import exp
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from src.http.base_response import BaseResponse,success_response,failure_response
-from src.model.user import Token
+from src.model.user import Register, Token
 router = APIRouter()
 @router.post("/token")
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),response_model=BaseResponse[Token]):
+async def token(request: OAuth2PasswordRequestForm = Depends(),response_model=BaseResponse[Token]):
     # user = fake_users_db.get(form_data.username)
     # if not user or user["password"] != form_data.password:
     #     raise HTTPException(
@@ -19,8 +19,10 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(),resp
     #     SECRET_KEY,
     #     algorithm=ALGORITHM,
     # )
-    return success_response(data=Token(access_token=form_data.username, token_type=form_data.password,expires_in=200))
+    return success_response(data=Token(access_token=request.username, token_type=request.password,expires_in=200))
 @router.post("/register")
-async def register():
-    return {"status": "ok", "message": "RealChar is running smoothly!"}
+async def register(request:Register,response_model=BaseResponse[Token]):
+    token_response = await token(request=OAuth2PasswordRequestForm(username=request.username, password=request.password))
+
+    return token_response
 

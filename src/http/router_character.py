@@ -1,8 +1,17 @@
 from fastapi import APIRouter
+from src.model.character import Character, CharacterList
+from src.http.base_response import BaseResponse, success_response
+from src.model.pagination import PaginationResponse
 router = APIRouter()
-@router.get("/create_character/{character_id}")
-async def create_character():
-    return {"status": "ok", "message": "RealChar is running smoothly!"}
-@router.get("/get_character/{character_id}")
-async def get_character():
-    return {"status": "ok", "message": "RealChar is running smoothly!"}
+@router.post("/create")
+async def create_character(request:Character,response_model=BaseResponse[Character]):
+    return success_response(data=request)
+@router.post("/edit")
+async def create_character(request:Character,response_model=BaseResponse[Character]):
+    return success_response(data=request)
+@router.get("/get/{id}")
+async def get_character(id: str):
+    return success_response(data={id})
+@router.get("/list")
+async def get_characters(request:CharacterList,response_model=BaseResponse[PaginationResponse]):
+    return success_response(data=PaginationResponse(data=request))

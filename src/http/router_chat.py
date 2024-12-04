@@ -1,8 +1,11 @@
 from fastapi import APIRouter
+
+from src.http.base_response import BaseResponse, success_response
+from src.model.chat import  Chat
+from src.model.pagination import PaginationResponse
 router = APIRouter()
-@router.get("/get_recent_conversations")
-async def get_recent_conversations():
-    return {"status": "ok", "message": "RealChar is running smoothly!"}
-@router.post("{session_id}")
-async def status():
-    return {"status": "ok", "message": "RealChar is running smoothly!"}
+
+@router.post("/text")
+async def text(request:Chat,response_model=BaseResponse[str]):
+    return success_response(data="输出")
+

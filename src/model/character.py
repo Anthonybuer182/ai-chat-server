@@ -18,5 +18,5 @@ class Character(BaseModel):
 
 class CharacterList(PaginationRequest):
     visibility: Optional[str] = None
-    create_by:Optional[str] = None
+    user_id:Optional[str] = None
 

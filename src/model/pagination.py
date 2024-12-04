@@ -10,6 +10,6 @@ class PaginationRequest(BaseModel):
 class PaginationResponse(BaseModel, Generic[T]):
     total: int = Field(description="总数据量")
     total_pages: int = Field(description="总页数")
-    current_page: int = Field(description="当前页码")
+    page: int = Field(description="当前页码")
     page_size: int = Field(description="每页数量")
     records: List[T]

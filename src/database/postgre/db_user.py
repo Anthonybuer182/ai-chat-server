@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from passlib.context import CryptContext
-from sqlalchemy import Column, DateTime, Integer, JSON, String
+from sqlalchemy import Column,String
 class User(Base):
     __tablename__ = "users"
     id = Column(String(36),primary_key=True,index=True,nullable=False)

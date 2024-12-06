@@ -25,6 +25,6 @@ async def token(request: OAuth2PasswordRequestForm = Depends(),response_model=Ba
 @router.post("/register")
 async def register(request:Register,response_model=BaseResponse[Token],db: AsyncSession = Depends(get_db)):
     user=await create_user(db, request.username, request.password, request.phone, request.email)
-    token_response = await token(request=OAuth2PasswordRequestForm(username=user.username, password=user.password))
-    return token_response
+    access_token,expire=auth2.create_access_token(data={"sub": user.username})
+    return success_response(data=Token(access_token=access_token, token_type="bearer",expires_in=expire))
 

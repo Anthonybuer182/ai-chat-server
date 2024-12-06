@@ -1,4 +1,4 @@
-from typing import Optional
+import uuid
 from src.database.postgre.db_base import Base
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,13 +15,13 @@ class User(Base):
     # class Config:
     #     from_attributes = True
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-async def get_user(db: AsyncSession, username: str) -> Optional[User]:
+async def get_user(db: AsyncSession, username: str):
     async with db.begin():
         result = await db.execute(select(User).filter(User.username == username))
         return result.scalars().first()
 
-async def create_user(db: AsyncSession, username: str, password: str, phone: str, email: str)-> User:
-    db_user = User(username=username,password=password_hash(password),phone=phone,email=email)
+async def create_user(db: AsyncSession, username: str, password: str, phone: str, email: str):
+    db_user = User(id=str(uuid.uuid4().hex),username=username,password=password_hash(password),phone=phone,email=email)
     db_user.phone = phone
     db.add(db_user)
     await db.commit()

@@ -1,3 +1,4 @@
+from asyncio import futures
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
@@ -9,7 +10,7 @@ from src.util.logger import get_logger
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://weiqun:123456@localhost:15432/ai-chat")
 
-engine = create_async_engine(DATABASE_URL, echo=True,feature = True)
+engine = create_async_engine(DATABASE_URL, echo=True,future = True)
 
 logger = get_logger(__name__)
 

@@ -21,17 +21,17 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> OAuth2PasswordReque
 
 SECRET_KEY = os.getenv("SECRET_KEY", "sxHgYa6ZcBVzOxpXY5L2AmABJHXrLH7jaqruZpXg3CA")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_SECONDS = 1800
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.utcnow() + timedelta(seconds=ACCESS_TOKEN_EXPIRE_SECONDS)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt,(expire - datetime.utcnow()).total_seconds()
+    return encoded_jwt,(expire - datetime.utcnow()).seconds
 
 def decode_access_token(token: str):
     try:

@@ -1,16 +1,19 @@
 from typing import Optional
+from src.database.postgre.db_base import Base
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from passlib.context import CryptContext
-class User(BaseModel):
-    id: int
-    username: str
-    password: str
-    phone: str 
-    email: str 
-    class Config:
-        from_attributes = True
+from sqlalchemy import Column, DateTime, Integer, JSON, String
+class User(Base):
+    __tablename__ = "users"
+    id = Column(String(36),primary_key=True,index=True,nullable=False)
+    username = Column(String(256),index=True,nullable=False)
+    password = Column(String(1024),nullable=False)
+    phone = Column(String(15),index=True,nullable=False) 
+    email = Column(String(256),index=True,nullable=False) 
+    # class Config:
+    #     from_attributes = True
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 async def get_user(db: AsyncSession, username: str) -> Optional[User]:
     async with db.begin():

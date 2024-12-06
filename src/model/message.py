@@ -1,7 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel
 
-from src.model import conversation
 from src.model.pagination import PaginationRequest
 
 class Message(BaseModel):

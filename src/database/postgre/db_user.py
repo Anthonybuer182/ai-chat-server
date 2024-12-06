@@ -10,7 +10,7 @@ class User(BaseModel):
     phone: str 
     email: str 
     class Config:
-        orm_mode = True
+        from_attributes = True
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 async def get_user(db: AsyncSession, username: str) -> Optional[User]:
     async with db.begin():

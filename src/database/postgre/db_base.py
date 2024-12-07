@@ -7,8 +7,8 @@ Base = declarative_base()
 class BaseDBModel(Base):
     __abstract__ = True  # 这意味着BaseModel不会在数据库中创建表
 
-    created_at = Column(DateTime, default=func.now(), nullable=False)
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=False)
     is_deleted = Column(Boolean, default=False, nullable=False)
     
     @validates('updated_at')

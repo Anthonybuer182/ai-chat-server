@@ -28,5 +28,5 @@ async def create_user(db: AsyncSession, username: str, password: str, phone: str
     return db_user
 def password_hash(password):
     return pwd_context.hash(password)
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+def verify_password(origin_password, hashed_password):
+    return pwd_context.verify(origin_password, hashed_password)

@@ -1,11 +1,10 @@
 import uuid
-from src.database.postgre.db_base import Base
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from passlib.context import CryptContext
 from sqlalchemy import Column,String
 from src.database.postgre.db_base import BaseDBModel
-class User(Base):
+class User(BaseDBModel):
     __tablename__ = "users"
     id = Column(String(36),primary_key=True,index=True,nullable=False)
     username = Column(String(256),index=True,nullable=False)

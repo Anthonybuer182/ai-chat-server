@@ -11,12 +11,18 @@ class User(BaseDBModel):
     password = Column(String(1024),nullable=False)
     phone = Column(String(15),index=True,nullable=False) 
     email = Column(String(256),index=True,nullable=False) 
-    # class Config:
-    #     from_attributes = True
+    class Config:
+        from_attributes = True
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-async def get_user(db: AsyncSession, username: str):
+
+async def get_user_by_name(db: AsyncSession, username: str):
     async with db.begin():
         result = await db.execute(select(User).filter(User.username == username))
+        return result.scalars().first()
+    
+async def get_user_by_id(db: AsyncSession, user_id: str):
+    async with db.begin():
+        result = await db.execute(select(User).filter(User.id == user_id))
         return result.scalars().first()
 
 async def create_user(db: AsyncSession, username: str, password: str, phone: str, email: str):

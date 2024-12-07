@@ -1,10 +1,10 @@
 import uuid
 from src.database.postgre.db_base import Base
-from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from passlib.context import CryptContext
 from sqlalchemy import Column,String
+from src.database.postgre.db_base import BaseDBModel
 class User(Base):
     __tablename__ = "users"
     id = Column(String(36),primary_key=True,index=True,nullable=False)

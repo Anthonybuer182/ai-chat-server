@@ -3,6 +3,7 @@ fastapi==0.103.2          # FastAPI core framework for building modern web APIs 
 uvicorn[standard]==0.23.0 # High-performance ASGI server for serving FastAPI apps (includes standard optimizations)
 websockets==11.0.3        # WebSocket support for real-time, bidirectional communication between client and server
 pydantic==2.8.1           # Data validation and settings management using Python type annotations (useful for FastAPI)
+psycopg2-binary==2.9.9    
 asyncpg==0.29.0           # Asynchronous PostgreSQL adapter for efficient non-blocking database queries in Python
 SQLAlchemy[asyncio]==2.0.21 # SQLAlchemy ORM with async support for interacting with PostgreSQL and other databases asynchronously
 httpx==0.25.0             # HTTP client for making asynchronous HTTP requests (useful for calling external APIs)

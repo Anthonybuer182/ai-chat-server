@@ -4,7 +4,7 @@ from sqlalchemy.sql import func
 from sqlalchemy import Column, DateTime, Boolean
 Base = declarative_base()
 
-class BaseModel(Base):
+class BaseDBModel(Base):
     __abstract__ = True  # 这意味着BaseModel不会在数据库中创建表
 
     created_at = Column(DateTime, default=func.now(), nullable=False)

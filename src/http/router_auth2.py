@@ -8,11 +8,25 @@ from typing import Optional
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.database.postgre.connection import get_db
-from src.database.postgre.db_user import  User, get_user_by_id
+from src.database.postgre.db_user import  User, get_user_by_id,get_user_by_name,verify_password
 from src.util.logger import get_logger
 
 logger = get_logger(__name__)
 router = APIRouter()
+
+router = APIRouter()
+
+@router.post("/token")
+async def token(request: OAuth2PasswordRequestForm = Depends(),db: AsyncSession = Depends(get_db)):
+    user = await get_user_by_name(db,request.username)
+    if not user or not verify_password(request.password,user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token,expire=create_access_token(user=user)
+    return {"access_token":access_token,"token_type":"bearer","expires_in":expire}
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -26,13 +40,12 @@ SECRET_KEY = os.getenv("SECRET_KEY", "sxHgYa6ZcBVzOxpXY5L2AmABJHXrLH7jaqruZpXg3C
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_SECONDS = 1800
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
-    to_encode = data.copy()
+def create_access_token(user: User, expires_delta: Optional[timedelta] = None):
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(seconds=ACCESS_TOKEN_EXPIRE_SECONDS)
-    to_encode.update({"exp": expire})
+    to_encode={"sub": user.id,"username":user.username,"exp": expire}
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt,(expire - datetime.utcnow()).seconds
 

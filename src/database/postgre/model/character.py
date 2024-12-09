@@ -36,3 +36,16 @@ async def create_char(db: AsyncSession,user_id: str, character: CharacterRequest
     await db.commit()
     await db.refresh(db_character)
     return db_character
+async def edit_char(db: AsyncSession, user_id: str, character: CharacterRequest):
+    async with db.begin():
+        result = await db.execute(select(CharacterDB).filter(CharacterDB.id == character.id, CharacterDB.user_id == user_id))
+        db_character = result.scalars().first()
+
+        if not db_character:
+            return None  
+        character_data = character.model_dump(exclude={"id", "user_id"})
+        for key, value in character_data.items():
+            if hasattr(db_character, key):
+                setattr(db_character, key, value)
+        await db.commit()
+        return db_character

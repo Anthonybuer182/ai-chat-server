@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
 from src.database.postgre.connection import get_db
-from src.database.postgre.model.character import create_char, get_char_by_id
+from src.database.postgre.model.character import create_char, edit_char, get_char_by_id
 from src.database.postgre.model.user import UserDB
 from src.http.model.character import CharacterListRequest, CharacterRequest
 from src.http.model.pagination import PaginationResponse
@@ -17,10 +17,10 @@ async def create_character(request:CharacterRequest,current_user: UserDB = Depen
     return success_response(data=jsonable_encoder(character))
 @router.post("/edit")
 async def edit_character(request:CharacterRequest,current_user: UserDB = Depends(get_current_user),db: AsyncSession = Depends(get_db)):
-    character=await get_char_by_id(db,request.id)
+    character=await edit_char(db,user_id=current_user.id,character=request)
     if not character:
         return failure_response(message="character not found")
-    return success_response(data=request)
+    return success_response(data=jsonable_encoder(character))
 @router.get("/get/{id}")
 async def get_character(id: str,current_user: UserDB = Depends(get_current_user),db: AsyncSession = Depends(get_db)):
     character=await get_char_by_id(db,id)

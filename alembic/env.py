@@ -4,8 +4,9 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-from src.database.postgre.db_base import BaseDBModel
-from src.database.postgre.db_user import DBUser
+from src.database.postgre.model.base import BaseDB
+from src.database.postgre.model.user import UserDB
+from src.database.postgre.model.character import CharacterDB
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -19,7 +20,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = BaseDBModel.metadata
+target_metadata = BaseDB.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

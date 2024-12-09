@@ -17,7 +17,6 @@ logger = get_logger(__name__)
 async def init_db():
     logger.info(DATABASE_URL)
     try:
-        # 尝试连接数据库并执行一个简单的查询
         async with engine.connect() as conn:
             result = await conn.execute(text("SELECT 1"))
             if result.fetchone() is not None:

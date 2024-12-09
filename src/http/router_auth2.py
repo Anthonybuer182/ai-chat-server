@@ -1,4 +1,5 @@
 import os
+from re import U
 from fastapi import APIRouter, Depends, HTTPException, status
 from jose import JWTError
 from jwt.exceptions import ExpiredSignatureError, DecodeError
@@ -8,7 +9,7 @@ from typing import Optional
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.database.postgre.connection import get_db
-from src.database.postgre.db_user import  User, get_user_by_id,get_user_by_name,verify_password
+from src.database.postgre.model.user import  UserDB, get_user_by_id,get_user_by_name,verify_password
 from src.util.logger import get_logger
 
 logger = get_logger(__name__)
@@ -40,7 +41,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "sxHgYa6ZcBVzOxpXY5L2AmABJHXrLH7jaqruZpXg3C
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_SECONDS = 1800
 
-def create_access_token(user: User, expires_delta: Optional[timedelta] = None):
+def create_access_token(user: UserDB, expires_delta: Optional[timedelta] = None):
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
@@ -56,7 +57,7 @@ def verify_token(token: str):
         username: str = payload.get("username")
         if  user_id is None or username is None :
             raise HTTPException(status_code=401, detail="Invalid credentials")
-        return User (id=user_id, username=username)
+        return UserDB (id=user_id, username=username)
     except ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token has expired")
     except DecodeError:

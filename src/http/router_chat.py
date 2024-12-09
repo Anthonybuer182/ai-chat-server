@@ -1,10 +1,11 @@
 from fastapi import APIRouter
 
-from src.http.base_response import BaseResponse, success_response
-from src.model.chat import  Chat
+from src.http.model.base import BaseResponse, success_response
+from src.http.model.chat import ChatRequest
+
 router = APIRouter()
 
 @router.post("/text")
-async def text(request:Chat,response_model=BaseResponse[str]):
+async def text(request:ChatRequest,response_model=BaseResponse[str]):
     return success_response(data="输出")
 

@@ -1,10 +1,11 @@
 from typing import Optional
 from pydantic import BaseModel
 
-from src.model.pagination import PaginationRequest
+from src.http.model.pagination import PaginationRequest
 
 
-class Character(BaseModel):
+
+class CharacterRequest(BaseModel):
     user_id:Optional[str] = None
     name: str
     background: Optional[str] = None
@@ -17,7 +18,7 @@ class Character(BaseModel):
     data: Optional[dict] = None
     
 
-class CharacterList(PaginationRequest):
+class CharacterListRequest(PaginationRequest):
     visibility: Optional[str] = None
     user_id:Optional[str] = None
 

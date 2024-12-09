@@ -1,10 +1,8 @@
 from typing import Optional
 from pydantic import BaseModel
 
-from src.model import conversation
-from src.model.pagination import PaginationRequest
 
-class Chat(BaseModel):
+class ChatRequest(BaseModel):
     user_id: Optional[str] = None
     character_id: Optional[str] = None
     conversation_id: Optional[str] = None

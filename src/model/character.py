@@ -5,6 +5,7 @@ from src.model.pagination import PaginationRequest
 
 
 class Character(BaseModel):
+    user_id:Optional[str] = None
     name: str
     background: Optional[str] = None
     portrait: Optional[str] = None
@@ -14,7 +15,7 @@ class Character(BaseModel):
     tts: Optional[str] = None
     visibility: Optional[str] = None
     data: Optional[dict] = None
-    create_by:Optional[str] = None
+    
 
 class CharacterList(PaginationRequest):
     visibility: Optional[str] = None

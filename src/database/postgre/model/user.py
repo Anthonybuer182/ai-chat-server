@@ -27,7 +27,7 @@ async def get_user_by_id(db: AsyncSession, user_id: str):
         return result.scalars().first()
 
 async def create_user(db: AsyncSession, user:UserRequest):
-    db_user = UserDB(id=str(uuid.uuid4().hex),password=password_hash(user.password),**user.model_dump(exclude={"id","password"}))
+    db_user = UserDB(id=str(uuid.uuid4().hex),password=password_hash(user.password),**user.model_dump(exclude={"id","password","code"}))
     db.add(db_user)
     await db.commit()
     await db.refresh(db_user)

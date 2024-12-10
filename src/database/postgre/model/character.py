@@ -38,7 +38,7 @@ async def edit_char(db: AsyncSession, user_id: str, character: CharacterRequest)
             return None  
         character_data = character.model_dump(exclude={"id", "user_id"})
         for key, value in character_data.items():
-            if hasattr(db_character, key):
+            if hasattr(db_character, key) and value is not None and value != "":
                 setattr(db_character, key, value)
         await db.commit()
         return db_character

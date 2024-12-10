@@ -19,6 +19,6 @@ class CharacterRequest(BaseModel):
     
 
 class CharacterListRequest(PaginationRequest):
-    visibility: Optional[str] = None
+    visibility: Optional[bool] = None
     user_id:Optional[str] = None
 

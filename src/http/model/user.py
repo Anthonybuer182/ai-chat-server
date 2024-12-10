@@ -1,8 +1,10 @@
+from typing import Optional
 from pydantic import BaseModel
 
 class UserRequest(BaseModel):
-    username: str
-    password: str
-    phone: str 
-    email: str
-    code: str 
+    id: Optional[str]
+    username: Optional[str] = None
+    password: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    code: Optional[str] = None

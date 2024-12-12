@@ -47,7 +47,7 @@ async def get_char_by_name(db: AsyncSession, character_name: str):
         result = await db.execute(select(CharacterDB).filter(CharacterDB.name == character_name))
         return result.scalars().first()
     
-async def get_char_by_id(db: AsyncSession, character_id: str):
+ def get_char_by_id(db: AsyncSession, character_id: str):
     async with db.begin():
         result = await db.execute(select(CharacterDB).filter(CharacterDB.id == character_id))
         return result.scalars().first()

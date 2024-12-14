@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from ast import Dict
-from typing import Any, List
+from typing import Any, List, Optional
 from uuid import UUID, uuid4
 from pydantic import BaseModel
 
@@ -14,29 +14,22 @@ class ChatSession(BaseModel,ABC):
     api_key: str
     model: str
     params:Dict[str,Any] = {"temperature": 0.7}
-    system_prompt: str = "You are a helpful assistant."
-    old_messages_context: str # 之前的消息作为上下文
+    system_prompt: Optional[str] = "You are a helpful assistant."
+    old_messages_context: Optional[str] # 之前的消息作为上下文
     new_messages: List[ChatMessage] = [] # 包含user和assistant 
     
     recent_messages: List[ChatMessage] = []
     recent_messages_length: int = 50
-    @abstractmethod
-    async def ai_chat(
-        self,
-        user_prompt: str,
-        callback: Any,# 聊天消息的回调
-    ):
-        pass
 
-@abstractmethod
-def sync_generate_text(self, system_prompt: str, user_prompt: str):
-        pass
-@abstractmethod
-def async_generate_text(self, system_prompt: str, user_prompt: str) -> None:
-        pass
-@abstractmethod
-def sync_generate_stream(self, system_prompt: str, user_prompt: str):
-        pass
-@abstractmethod
-def async_generate_stream(self, system_prompt: str, user_prompt: str) -> None:
-        pass
+    @abstractmethod
+    def sync_generate_text(self, system_prompt: Optional[str], user_prompt: str):
+            pass
+    @abstractmethod
+    def async_generate_text(self, system_prompt: Optional[str], user_prompt: str):
+            pass
+    @abstractmethod
+    def sync_generate_stream(self, system_prompt: Optional[str], user_prompt: str):
+            pass
+    @abstractmethod
+    def async_generate_stream(self, system_prompt: Optional[str], user_prompt: str):
+            pass

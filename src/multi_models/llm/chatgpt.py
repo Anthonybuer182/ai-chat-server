@@ -1,5 +1,5 @@
 import os
-from typing import Any, Set, Union, List
+from typing import Any, Optional, Set, Union, List
 from fastapi import Depends
 from httpx import AsyncClient, Client
 import orjson
@@ -12,10 +12,9 @@ from src.util.http import async_client, sync_client
 class ChatGPTSession(ChatSession):
     api_url: HttpUrl = "https://api.openai.com/v1/chat/completions"
     api_key = os.getenv("OPENAI_API_KEY")
-    system_prompt = "You are a helpful assistant."
     include_fields: Set[str] = {"role", "content"}
 
-    def sync_generate_text(self, system_prompt: str, user_prompt: str):
+    def sync_generate_text(self, system_prompt: Optional[str], user_prompt: str):
         """Handles user interaction with the AI model."""
         headers = self._build_headers()
         messages,system_message,user_message = self._format_messages(
@@ -31,7 +30,7 @@ class ChatGPTSession(ChatSession):
 
         self._update_session(user_message, assistant_message)
         return assistant_message.content
-    async def async_generate_text(self, system_prompt: str, user_prompt: str):
+    async def async_generate_text(self, system_prompt: Optional[str], user_prompt: str):
         """Asynchronously handles user interaction with the AI model."""
         headers = self._build_headers()
         messages,system_message,user_message = self._format_messages(
@@ -47,7 +46,7 @@ class ChatGPTSession(ChatSession):
 
         self._update_session(user_message, assistant_message)
         return assistant_message.content
-    def sync_generate_stream(self, system_prompt: str, user_prompt: str):
+    def sync_generate_stream(self, system_prompt: Optional[str], user_prompt: str):
         """Handles user interaction with the AI model."""
         headers = self._build_headers()
         messages,system_message,user_message = self._format_messages(
@@ -62,7 +61,7 @@ class ChatGPTSession(ChatSession):
             json=data,
             headers=headers,
         ) as response:
-            content = ""
+            content = []
             for chunk in response.iter_lines():
                 delta = self._process_stream_chunk(chunk)
                 if delta:
@@ -77,7 +76,7 @@ class ChatGPTSession(ChatSession):
         self._update_session(user_message, assistant_message)
         return assistant_message.content
 
-    async def async_generate_stream(self, system_prompt: str, user_prompt: str):
+    async def async_generate_stream(self, system_prompt: Optional[str], user_prompt: str):
         """Handles user interaction with the AI model."""
         headers = self._build_headers()
         messages,system_message,user_message = self._format_messages(
@@ -92,7 +91,7 @@ class ChatGPTSession(ChatSession):
             json=data,
             headers=headers,
         ) as response:
-            content = ""
+            content = []
             async for chunk in response.aiter_lines():
                 delta = self._process_stream_chunk(chunk)
                 if delta:
@@ -116,7 +115,7 @@ class ChatGPTSession(ChatSession):
             "Authorization": f"Bearer {self.api_key}",
         }
         
-    def _format_messages(self, system_prompt: str, user_prompt: str):
+    def _format_messages(self, system_prompt: Optional[str], user_prompt: str):
         """Formats the system and user messages for the API request."""
         system_message = ChatMessage(role="system", content=system_prompt)
         user_message = ChatMessage(role="user", content=user_prompt)
@@ -129,7 +128,7 @@ class ChatGPTSession(ChatSession):
         ],system_message,user_message
 
 
-    def _build_request_payload(self, messages: List[dict], stream: bool) -> dict:
+    def _build_request_payload(self, messages: List[ChatMessage], stream: bool) -> dict:
         """Constructs the payload for the API request."""
         return {
             "model": self.model,
@@ -174,7 +173,7 @@ class ChatGPTSession(ChatSession):
                 if delta:
                     return delta
         return None
-    def _handle_stream_content(self, delta: str, content: str):
+    def _handle_stream_content(self, delta: str, content: list):
         """处理拼接后的流数据并生成响应。"""
-        content += delta  # 拼接字符串
-        return {"delta": delta, "response": content}
+        content.append(delta)
+        return {"delta": delta, "response": ''.join(content)}

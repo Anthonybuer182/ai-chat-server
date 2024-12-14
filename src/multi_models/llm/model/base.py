@@ -27,21 +27,16 @@ class ChatSession(BaseModel,ABC):
         callback: Any,# 聊天消息的回调
     ):
         pass
-# @abstractmethod
-# def prepare_request(self, message: ChatMessage) -> None:
-#         pass
-# @abstractmethod
-# def sync_text_generate(self, message: ChatMessage) -> None:
-#         pass
-# @abstractmethod
-# def async_text_generate(self, message: ChatMessage) -> None:
-#         pass
-# @abstractmethod
-# async def sync_text_generate(self, message: ChatMessage) -> None:
-#         pass
-# @abstractmethod
-# def sync_stream_generate(self, message: ChatMessage) -> None:
-#         pass
-# @abstractmethod
-# async def async_stream_generate(self, message: ChatMessage) -> None:
-#         pass
+
+@abstractmethod
+def sync_generate_text(self, system_prompt: str, user_prompt: str):
+        pass
+@abstractmethod
+def async_generate_text(self, system_prompt: str, user_prompt: str) -> None:
+        pass
+@abstractmethod
+def sync_generate_stream(self, system_prompt: str, user_prompt: str):
+        pass
+@abstractmethod
+def async_generate_stream(self, system_prompt: str, user_prompt: str) -> None:
+        pass

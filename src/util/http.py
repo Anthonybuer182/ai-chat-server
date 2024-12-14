@@ -48,6 +48,7 @@ def sync_client(proxy: bool = True) -> httpx.Client:
     proxies = os.getenv("https_proxy") if proxy else None
     return httpx.Client(
         proxies=proxies,
+        timeout=60,
         event_hooks={
             "request": [log_request],
             "response": [log_response],
@@ -57,6 +58,7 @@ def async_client(proxy: bool = True) -> httpx.AsyncClient:
     proxies = os.getenv("https_proxy") if proxy else None
     return httpx.AsyncClient(
         proxies=proxies,
+        timeout=60,
         event_hooks={
             "request": [async_log_request],
             "response": [async_log_response],

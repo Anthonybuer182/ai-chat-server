@@ -10,8 +10,8 @@ from src.multi_models.llm.model.message import ChatMessage
 class ChatSession(BaseModel,ABC):
     conversation_id: str
     conversation_name: str
-    apy_url: str
-    apy_key: str
+    api_url: str
+    api_key: str
     model: str
     params:Dict[str,Any] = {"temperature": 0.7}
     system_prompt: str = "You are a helpful assistant."

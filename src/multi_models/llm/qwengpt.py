@@ -9,10 +9,10 @@ from src.multi_models.llm.model.message import ChatMessage
 from src.util.http import async_client, sync_client
 
 
-class ChatGPTSession(ChatSession):
-    api_url: HttpUrl = "https://api.openai.com/v1/chat/completions"
+class ChatQWENSession(ChatSession):
+    api_url: HttpUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
     api_key = os.getenv("OPENAI_API_KEY")
-    system_prompt: Optional[str] = "You are a helpful assistant."
+    system_prompt: Optional[str] = "你是一个有用的助手。"
     include_fields: Set[str] = {"role", "content"}
     def sync_generate_text(self, system_prompt: Optional[str], user_prompt: str):
         """Handles user interaction with the AI model."""
@@ -141,9 +141,11 @@ class ChatGPTSession(ChatSession):
         self.new_messages.extend([user_message, assistant_message])
         self.recent_messages.extend([user_message, assistant_message])
 
-        # while len(self.recent_messages) > os.getenv("MAX_MESSAGE_CONTEXT_LENGTH", 10) and not (self.recent_messages[-1]['role']=='assistant' ):  # 条件：最后一个元素 > 2 停止移除
-        #     self.recent_messages.pop()
-
+        # Limit to most recent two messages for session context
+        self.recent_messages = [
+            msg for msg in self.recent_messages[-2:]
+            if msg.role == "assistant" or len(self.recent_messages) <= 2
+        ]
 # text
     def _parse_text_response(self, res_json: dict) -> ChatMessage:
         """Parses the API response and creates an assistant message."""

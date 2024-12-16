@@ -9,15 +9,25 @@ from src.multi_models.llm.qwengpt import ChatQWENSession
 from src.util.http import sync_client
 
 
-class AIChat(BaseModel):
-    client: Union[Client,AsyncClient]
+class SyncAIChat(BaseModel):
     session: Optional[ChatSession]
-    def __init__(self, model: str):
+    def __init__(self, model: str,system_prompt:Optional[str]=None,messages_context:Optional[str]=None):
+        super().__init__(session=None)
         if "gpt" in model:
-            self.session=ChatGPTSession(model=model,system_prompt="",messages_context="")
+            self.session=ChatGPTSession(client=sync_client(),model=model,system_prompt=system_prompt,messages_context=messages_context)
         elif "qwengpt" in model:
             self.session=ChatQWENSession(model=model)
         else:
-                raise ValueError(f"Invalid model: {model}")
-    def __call__(self,user_prompt:str,stream:bool=False):
-         self.client=sync_client()
+            raise ValueError(f"Invalid model: {model}")
+    def __call__(self,system_prompt:Optional[str],user_prompt:str,stream:bool=False):
+         if stream:
+             return self.session.sync_generate_stream(system_prompt=system_prompt, user_prompt=user_prompt)
+         else:
+             return self.session.sync_generate_text(system_prompt=system_prompt, user_prompt=user_prompt)
+         
+class AsyncAIChat(SyncAIChat):
+    def __call__(self,system_prompt:Optional[str],user_prompt:str,stream:bool=False):
+         if stream:
+             return self.session.async_generate_stream(system_prompt=system_prompt, user_prompt=user_prompt)
+         else:
+             return self.session.async_generate_text(system_prompt=system_prompt, user_prompt=user_prompt)    

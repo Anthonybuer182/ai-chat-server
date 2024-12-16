@@ -9,10 +9,10 @@ from src.multi_models.llm.model.message import ChatMessage
 from src.util.http import async_client, sync_client
 
 
-class ChatQWENSession(ChatSession):
+class ChatGPTSession(ChatSession):
     api_url: HttpUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
     api_key = os.getenv("OPENAI_API_KEY")
-    system_prompt: Optional[str] = "你是一个有用的助手。"
+    system_prompt: Optional[str] = "你是一个有帮助的助手。"
     include_fields: Set[str] = {"role", "content"}
     def sync_generate_text(self, system_prompt: Optional[str], user_prompt: str):
         """Handles user interaction with the AI model."""
@@ -23,7 +23,7 @@ class ChatQWENSession(ChatSession):
         )
         data = self._build_request_payload(messages, False)
         
-        response = sync_client().post(str(self.api_url), headers=headers, json=data)
+        response = self.client.post(str(self.api_url), headers=headers, json=data)
         res_json = response.json()
 
         assistant_message = self._parse_text_response(res_json)
@@ -39,7 +39,7 @@ class ChatQWENSession(ChatSession):
         )
         data = self._build_request_payload(messages, False)
        
-        response = await async_client().post(str(self.api_url), headers=headers, json=data)
+        response = await self.client.post(str(self.api_url), headers=headers, json=data)
         res_json = response.json()
 
         assistant_message = self._parse_text_response(res_json)
@@ -55,7 +55,7 @@ class ChatQWENSession(ChatSession):
         )
         data = self._build_request_payload(messages, True)
         
-        with sync_client().stream(
+        with self.client.stream(
             "POST",
             str(self.api_url),
             json=data,
@@ -85,7 +85,7 @@ class ChatQWENSession(ChatSession):
         )
         data = self._build_request_payload(messages, True)
         
-        async with async_client().stream(
+        async with self.client.stream(
             "POST",
             str(self.api_url),
             json=data,
@@ -128,7 +128,7 @@ class ChatQWENSession(ChatSession):
         ],system_message,user_message
 
 
-    def _build_request_payload(self, messages: List[ChatMessage], stream: bool) -> dict:
+    def _build_request_payload(self, messages: List[dict], stream: bool) -> dict:
         """Constructs the payload for the API request."""
         return {
             "model": self.model,
@@ -140,12 +140,9 @@ class ChatQWENSession(ChatSession):
         """Updates the session with new messages."""
         self.new_messages.extend([user_message, assistant_message])
         self.recent_messages.extend([user_message, assistant_message])
+        if len(self.recent_messages) > os.getenv('MAX_MESSAGE_CONTEXT_LENGTH',50):
+            self.recent_messages = self.recent_messages[:-2]
 
-        # Limit to most recent two messages for session context
-        self.recent_messages = [
-            msg for msg in self.recent_messages[-2:]
-            if msg.role == "assistant" or len(self.recent_messages) <= 2
-        ]
 # text
     def _parse_text_response(self, res_json: dict) -> ChatMessage:
         """Parses the API response and creates an assistant message."""
@@ -161,7 +158,7 @@ class ChatQWENSession(ChatSession):
                 total_tokens=usage.get("total_tokens"),
             )
         except KeyError:
-            raise ValueError(f"Unexpected response from OpenAI API: {res_json}")
+            raise ValueError(f"Unexpected response format from OpenAI API: {res_json}") from e
     # stream
     def _process_stream_chunk(self, chunk: bytes) -> Union[str, None]:
         """处理单个 SSE 数据块，移除 'data: ' 前缀并处理响应。"""

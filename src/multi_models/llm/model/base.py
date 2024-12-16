@@ -18,7 +18,8 @@ class ChatSession(BaseModel,ABC):
     messages_context: Optional[str] # 之前的消息或者聊天话题作为上下文
     new_messages: List[ChatMessage] = []
     recent_messages: List[ChatMessage] = []
-
+    class Config:
+        arbitrary_types_allowed = True
     @abstractmethod
     def sync_generate_text(self, system_prompt: Optional[str], user_prompt: str):
             pass

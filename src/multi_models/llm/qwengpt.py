@@ -9,9 +9,9 @@ from src.multi_models.llm.model.message import ChatMessage
 from src.util.http import async_client, sync_client
 
 
-class ChatGPTSession(ChatSession):
+class ChatQWENSession(ChatSession):
     api_url: HttpUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key: str = os.getenv("OPENAI_API_KEY")
     system_prompt: Optional[str] = "你是一个有帮助的助手。"
     include_fields: Set[str] = {"role", "content"}
     def sync_generate_text(self, system_prompt: Optional[str], user_prompt: str):

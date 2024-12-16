@@ -6,17 +6,17 @@ from pydantic import BaseModel
 from src.multi_models.llm.chatgpt import ChatGPTSession
 from src.multi_models.llm.model.base import ChatSession
 from src.multi_models.llm.qwengpt import ChatQWENSession
-from src.util.http import sync_client
+from src.util.http import async_client, sync_client
 
 
 class SyncAIChat(BaseModel):
     session: Optional[ChatSession]
-    def __init__(self, model: str,system_prompt:Optional[str]=None,messages_context:Optional[str]=None):
+    def __init__(self, model: str,system_prompt:Optional[str]=None,messages_context:Optional[str]=None,client:Union[Client, AsyncClient]=sync_client()):
         super().__init__(session=None)
         if "gpt" in model:
-            self.session=ChatGPTSession(client=sync_client(),model=model,system_prompt=system_prompt,messages_context=messages_context)
+            self.session=ChatGPTSession(client=client,model=model,system_prompt=system_prompt,messages_context=messages_context)
         elif "qwengpt" in model:
-            self.session=ChatQWENSession(model=model)
+            self.session=ChatQWENSession(client=client,model=model,system_prompt=system_prompt,messages_context=messages_context)
         else:
             raise ValueError(f"Invalid model: {model}")
     def __call__(self,system_prompt:Optional[str],user_prompt:str,stream:bool=False):
@@ -27,7 +27,7 @@ class SyncAIChat(BaseModel):
          
 class AsyncAIChat(SyncAIChat):
     def __init__(self, model: str, system_prompt: Optional[str] = None, messages_context: Optional[str] = None):
-        super().__init__(model, system_prompt, messages_context)
+        super().__init__(async_client(),model, system_prompt, messages_context)
     def __call__(self,system_prompt:Optional[str],user_prompt:str,stream:bool=False):
          if stream:
              return self.session.async_generate_stream(system_prompt=system_prompt, user_prompt=user_prompt)

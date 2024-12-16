@@ -11,7 +11,7 @@ from src.util.http import async_client, sync_client
 
 class ChatGPTSession(ChatSession):
     api_url: HttpUrl = "https://api.openai.com/v1/chat/completions"
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key: str = os.getenv("OPENAI_API_KEY")
     system_prompt: Optional[str] = "You are a helpful assistant."
     include_fields: Set[str] = {"role", "content"}
     def sync_generate_text(self, system_prompt: Optional[str], user_prompt: str):

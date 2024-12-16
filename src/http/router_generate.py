@@ -16,8 +16,9 @@ async def text(user:UserDB = Depends(get_current_user),db: AsyncSession = Depend
     # 获取角色的系统提示
     # 获取向量数据库的话题上下文
     # 获取会话的消息上下文
-    ai = AsyncAIChat(model="gpt-4o",system_prompt="",messages_context="")
-    return success_response(data="文本生成")
+    ai = AsyncAIChat(model="qwen-turbo",system_prompt="",messages_context="")
+    text = await ai("你是一个有帮助的助手。","一月亮为主题写一首诗",stream=False)
+    return success_response(data=text)
 @router.post("/image")
 async def image(request:UserRequest,db: AsyncSession = Depends(get_db)):
     return success_response(data="图像生成")

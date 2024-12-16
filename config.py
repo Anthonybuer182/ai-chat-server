@@ -1,0 +1,4 @@
+import os
+
+
+MAX_MESSAGE_CONTEXT_LENGTH = int(os.getenv('MAX_MESSAGE_CONTEXT_LENGTH', 50))

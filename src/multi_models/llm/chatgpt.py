@@ -4,6 +4,7 @@ from fastapi import Depends
 from httpx import AsyncClient, Client
 import orjson
 from pydantic import HttpUrl
+from config import MAX_MESSAGE_CONTEXT_LENGTH
 from src.multi_models.llm.model.base import ChatSession
 from src.multi_models.llm.model.message import ChatMessage
 from src.util.http import async_client, sync_client
@@ -139,7 +140,7 @@ class ChatGPTSession(ChatSession):
         """Updates the session with new messages."""
         self.new_messages.extend([user_message, assistant_message])
         self.recent_messages.extend([user_message, assistant_message])
-        if len(self.recent_messages) > os.getenv('MAX_MESSAGE_CONTEXT_LENGTH',50):
+        if len(self.recent_messages) > MAX_MESSAGE_CONTEXT_LENGTH:
             self.recent_messages = self.recent_messages[:-2]
 
 # text

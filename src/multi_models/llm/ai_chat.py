@@ -15,7 +15,7 @@ class SyncAIChat(BaseModel):
         super().__init__(session=None)
         if "gpt" in model:
             self.session=ChatGPTSession(client=client,model=model,system_prompt=system_prompt,messages_context=messages_context)
-        elif "qwengpt" in model:
+        elif "qwen" in model:
             self.session=ChatQWENSession(client=client,model=model,system_prompt=system_prompt,messages_context=messages_context)
         else:
             raise ValueError(f"Invalid model: {model}")
@@ -27,7 +27,7 @@ class SyncAIChat(BaseModel):
          
 class AsyncAIChat(SyncAIChat):
     def __init__(self, model: str, system_prompt: Optional[str] = None, messages_context: Optional[str] = None):
-        super().__init__(async_client(),model, system_prompt, messages_context)
+        super().__init__(model, system_prompt, messages_context,async_client())
     def __call__(self,system_prompt:Optional[str],user_prompt:str,stream:bool=False):
          if stream:
              return self.session.async_generate_stream(system_prompt=system_prompt, user_prompt=user_prompt)

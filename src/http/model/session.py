@@ -5,13 +5,13 @@ from src.http.model.pagination import PaginationRequest
 
 
 
-class ConversationRequest(BaseModel):
+class SessionRequest(BaseModel):
     user_id: Optional[str] = None
     character_id: Optional[str] = None
     title: Optional[str] = None
     content: Optional[str] = None
 
-class ConversationListRequest(PaginationRequest):
+class SessionListRequest(PaginationRequest):
     user_id: Optional[str] = None
     character_id: Optional[str] = None
 

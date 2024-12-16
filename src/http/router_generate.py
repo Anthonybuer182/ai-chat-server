@@ -7,11 +7,16 @@ from src.http.router_auth2 import  get_current_user
 from src.http.model.base import success_response,failure_response
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.database.postgre.connection import get_db
+from src.multi_models.llm.ai_chat import AsyncAIChat, SyncAIChat
 
 router = APIRouter()
 
 @router.post("/text")
-async def text(request:UserRequest,db: AsyncSession = Depends(get_db)):
+async def text(user:UserDB = Depends(get_current_user),db: AsyncSession = Depends(get_db)):
+    # 获取角色的系统提示
+    # 获取向量数据库的话题上下文
+    # 获取会话的消息上下文
+    ai = AsyncAIChat(model="gpt-4o",system_prompt="",messages_context="")
     return success_response(data="文本生成")
 @router.post("/image")
 async def image(request:UserRequest,db: AsyncSession = Depends(get_db)):

@@ -11,4 +11,3 @@ class ChatMessage(BaseModel):
     prompt_tokens: int
     completion_tokens: int
     total_tokens: int
-    received_at: datetime.datetime = Field(default_factory=datetime.datetime.now(datetime.timezone.utc))

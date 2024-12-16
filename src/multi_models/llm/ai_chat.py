@@ -26,6 +26,8 @@ class SyncAIChat(BaseModel):
              return self.session.sync_generate_text(system_prompt=system_prompt, user_prompt=user_prompt)
          
 class AsyncAIChat(SyncAIChat):
+    def __init__(self, model: str, system_prompt: Optional[str] = None, messages_context: Optional[str] = None):
+        super().__init__(model, system_prompt, messages_context)
     def __call__(self,system_prompt:Optional[str],user_prompt:str,stream:bool=False):
          if stream:
              return self.session.async_generate_stream(system_prompt=system_prompt, user_prompt=user_prompt)

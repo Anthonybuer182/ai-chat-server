@@ -14,7 +14,7 @@ class ChatSession(BaseModel,ABC):
     api_url: str
     api_key: str
     model: str
-    params:Dict[str,Any] = {"temperature": 0.7}
+    params:dict[str,Any] = {"temperature": 0.7}
     messages_context: Optional[str] # 之前的消息或者聊天话题作为上下文
     new_messages: List[ChatMessage] = []
     recent_messages: List[ChatMessage] = []

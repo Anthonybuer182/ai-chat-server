@@ -104,7 +104,6 @@ class ChatGPTSession(ChatSession):
         )
 
         self._update_session(user_message, assistant_message)
-        return assistant_message.content
 
     def _build_headers(self) -> dict:
         """Builds and returns request headers."""

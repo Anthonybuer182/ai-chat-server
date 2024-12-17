@@ -21,36 +21,17 @@ class SessionDB(BaseDB):
     
   
 
-async def create_char(db: AsyncSession,user_id: str, character: CharacterRequest):
-    db_character = SessionDB(id=str(uuid.uuid4().hex),user_id=user_id,**character.model_dump(exclude={"id"}))
-    db.add(db_character)
+async def save_session(db: AsyncSession,session: SessionDB):
+    db.add(session)
     await db.commit()
-    await db.refresh(db_character)
-    return db_character
-async def edit_char(db: AsyncSession, user_id: str, character: CharacterRequest):
+    await db.refresh(session)
+    return session
+async def delete_session(db: AsyncSession, session_id: str):
     async with db.begin():
-        result = await db.execute(select(SessionDB).filter(SessionDB.id == character.id, SessionDB.user_id == user_id))
-        db_character = result.scalars().first()
-
-        if not db_character:
-            return None  
-        character_data = character.model_dump(exclude={"id", "user_id"})
-        for key, value in character_data.items():
-            if hasattr(db_character, key) and value is not None and value != "":
-                setattr(db_character, key, value)
-        await db.commit()
-        return db_character
-async def get_char_by_name(db: AsyncSession, character_name: str):
-    async with db.begin():
-        result = await db.execute(select(SessionDB).filter(SessionDB.name == character_name))
+        result = await db.execute(select(SessionDB).filter(SessionDB.name == session_id))
         return result.scalars().first()
     
-async def get_char_by_id(db: AsyncSession, character_id: str):
-    async with db.begin():
-        result = await db.execute(select(SessionDB).filter(SessionDB.id == character_id))
-        return result.scalars().first()
-
-async def get_char_list(db: AsyncSession, characterList: CharacterListRequest) -> PaginationResponse[dict]:
+async def get_session_list(db: AsyncSession, characterList: CharacterListRequest) -> PaginationResponse[dict]:
     base_query = select(SessionDB)
 
     if characterList.visibility is not None:

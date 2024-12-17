@@ -39,6 +39,8 @@ def log_request(request: httpx.Request):
     if request.content:
         try:
             body = request.content.decode('utf-8')
+            # 如果 body 中包含 Unicode 转义字符，进行解码
+            body = bytes(body, 'utf-8').decode('unicode_escape')
         except Exception as e:
             logger.warning(f"Failed to decode request body: {e}")
     log_http_message(request_id, "HTTP REQUEST", request.method, str(request.url), request.headers, body)
@@ -60,6 +62,8 @@ async def async_log_request(request: httpx.Request):
     if request.content:
         try:
             body = request.content.decode('utf-8')
+            # 如果 body 中包含 Unicode 转义字符，进行解码
+            body = bytes(body, 'utf-8').decode('unicode_escape')
         except Exception as e:
             logger.warning(f"Failed to decode request body: {e}")
     log_http_message(request_id, "HTTP REQUEST", request.method, str(request.url), request.headers, body)

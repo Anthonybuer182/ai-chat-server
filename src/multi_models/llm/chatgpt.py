@@ -15,7 +15,7 @@ class ChatGPTSession(ChatSession):
     api_key: str = OPENAI_API_KEY
     system_prompt: Optional[str] = "You are a helpful assistant."
     include_fields: Set[str] = {"role", "content"}
-    def sync_generate_text(self, system_prompt: Optional[str], user_prompt: str):
+    def sync_generate_text(self, user_prompt: str, system_prompt: Optional[str]):
         """Handles user interaction with the AI model."""
         headers = self._build_headers()
         messages,system_message,user_message = self._format_messages(
@@ -31,7 +31,7 @@ class ChatGPTSession(ChatSession):
 
         self._update_session(user_message, assistant_message)
         return assistant_message.content
-    async def async_generate_text(self, system_prompt: Optional[str], user_prompt: str):
+    async def async_generate_text(self, user_prompt: str, system_prompt: Optional[str]):
         """Asynchronously handles user interaction with the AI model."""
         headers = self._build_headers()
         messages,system_message,user_message = self._format_messages(
@@ -47,7 +47,7 @@ class ChatGPTSession(ChatSession):
 
         self._update_session(user_message, assistant_message)
         return assistant_message.content
-    def sync_generate_stream(self, system_prompt: Optional[str], user_prompt: str):
+    def sync_generate_stream(self, user_prompt: str, system_prompt: Optional[str]):
         """Handles user interaction with the AI model."""
         headers = self._build_headers()
         messages,system_message,user_message = self._format_messages(
@@ -77,7 +77,7 @@ class ChatGPTSession(ChatSession):
         self._update_session(user_message, assistant_message)
         return assistant_message.content
 
-    async def async_generate_stream(self, system_prompt: Optional[str], user_prompt: str):
+    async def async_generate_stream(self, user_prompt: str, system_prompt: Optional[str]):
         """Handles user interaction with the AI model."""
         headers = self._build_headers()
         messages,system_message,user_message = self._format_messages(
@@ -115,7 +115,7 @@ class ChatGPTSession(ChatSession):
             "Authorization": f"Bearer {self.api_key}",
         }
         
-    def _format_messages(self, system_prompt: Optional[str], user_prompt: str):
+    def _format_messages(self, user_prompt: str, system_prompt: Optional[str]):
         """Formats the system and user messages for the API request."""
         system_message = ChatMessage(role="system", content=system_prompt)
         user_message = ChatMessage(role="user", content=user_prompt)
@@ -157,7 +157,7 @@ class ChatGPTSession(ChatSession):
                 completion_tokens=usage.get("completion_tokens"),
                 total_tokens=usage.get("total_tokens"),
             )
-        except KeyError:
+        except KeyError as e:
             raise ValueError(f"Unexpected response format from OpenAI API: {res_json}") from e
     # stream
     def _process_stream_chunk(self, chunk: bytes) -> Union[str, None]:

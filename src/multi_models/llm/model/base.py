@@ -21,14 +21,14 @@ class ChatSession(BaseModel,ABC):
     class Config:
         arbitrary_types_allowed = True
     @abstractmethod
-    def sync_generate_text(self, system_prompt: Optional[str], user_prompt: str):
+    def sync_generate_text(self, user_prompt: str, system_prompt: Optional[str]):
             pass
     @abstractmethod
-    def async_generate_text(self, system_prompt: Optional[str], user_prompt: str):
+    def async_generate_text(self, user_prompt: str, system_prompt: Optional[str]):
             pass
     @abstractmethod
-    def sync_generate_stream(self, system_prompt: Optional[str], user_prompt: str):
+    def sync_generate_stream(self, user_prompt: str, system_prompt: Optional[str]):
             pass
     @abstractmethod
-    def async_generate_stream(self, system_prompt: Optional[str], user_prompt: str):
+    def async_generate_stream(self, user_prompt: str, system_prompt: Optional[str]):
             pass

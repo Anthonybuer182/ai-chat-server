@@ -39,7 +39,7 @@ def get_current_user(token: str = Depends(oauth2_scheme),db: AsyncSession = Depe
     return user
 
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_SECONDS = 1800
+ACCESS_TOKEN_EXPIRE_SECONDS = 18000
 
 def create_access_token(user: UserDB, expires_delta: Optional[timedelta] = None):
     if expires_delta:

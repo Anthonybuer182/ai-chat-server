@@ -3,7 +3,7 @@ from typing import Any, Optional, Set, Union, List
 from fastapi import Depends
 from httpx import AsyncClient, Client
 import orjson
-from pydantic import HttpUrl
+from pydantic import Field, HttpUrl
 from config import DASHSCOPE_API_KEY, MAX_MESSAGE_CONTEXT_LENGTH
 from src.multi_models.llm.model.base import ChatSession
 from src.multi_models.llm.model.message import ChatMessage
@@ -13,9 +13,12 @@ from src.util.http import async_client, sync_client
 class ChatQWENSession(ChatSession):
     api_url: HttpUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
     api_key: str = DASHSCOPE_API_KEY
-    system_prompt: Optional[str] = "你是一个有帮助的助手。"
+    system_prompt: str = Field("你是一个提供帮助的助手。", exclude_none=True)
     include_fields: Set[str] = {"role", "content"}
-    def sync_generate_text(self, system_prompt: Optional[str], user_prompt: str):
+    # def __init__(self, system_prompt: Optional[str] = None):
+    #     self.system_prompt = system_prompt if system_prompt is not None else "你是一个有帮助的助手。"
+
+    def sync_generate_text(self, user_prompt: str, system_prompt: Optional[str]):
         """Handles user interaction with the AI model."""
         headers = self._build_headers()
         messages,system_message,user_message = self._format_messages(
@@ -31,7 +34,7 @@ class ChatQWENSession(ChatSession):
 
         self._update_session(user_message, assistant_message)
         return assistant_message.content
-    async def async_generate_text(self, system_prompt: Optional[str], user_prompt: str):
+    async def async_generate_text(self, user_prompt: str, system_prompt: Optional[str]):
         """Asynchronously handles user interaction with the AI model."""
         headers = self._build_headers()
         messages,system_message,user_message = self._format_messages(
@@ -47,7 +50,7 @@ class ChatQWENSession(ChatSession):
 
         self._update_session(user_message, assistant_message)
         return assistant_message.content
-    def sync_generate_stream(self, system_prompt: Optional[str], user_prompt: str):
+    def sync_generate_stream(self, user_prompt: str, system_prompt: Optional[str]):
         """Handles user interaction with the AI model."""
         headers = self._build_headers()
         messages,system_message,user_message = self._format_messages(
@@ -77,7 +80,7 @@ class ChatQWENSession(ChatSession):
         self._update_session(user_message, assistant_message)
         return assistant_message.content
 
-    async def async_generate_stream(self, system_prompt: Optional[str], user_prompt: str):
+    async def async_generate_stream(self, user_prompt: str, system_prompt: Optional[str]):
         """Handles user interaction with the AI model."""
         headers = self._build_headers()
         messages,system_message,user_message = self._format_messages(
@@ -115,7 +118,7 @@ class ChatQWENSession(ChatSession):
             "Authorization": f"Bearer {self.api_key}",
         }
         
-    def _format_messages(self, system_prompt: Optional[str], user_prompt: str):
+    def _format_messages(self, user_prompt: str, system_prompt: Optional[str]):
         """Formats the system and user messages for the API request."""
         system_message = ChatMessage(role="system", content=system_prompt)
         user_message = ChatMessage(role="user", content=user_prompt)

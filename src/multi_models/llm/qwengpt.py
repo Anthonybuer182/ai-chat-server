@@ -4,7 +4,7 @@ from fastapi import Depends
 from httpx import AsyncClient, Client
 import orjson
 from pydantic import HttpUrl
-from config import MAX_MESSAGE_CONTEXT_LENGTH
+from config import DASHSCOPE_API_KEY, MAX_MESSAGE_CONTEXT_LENGTH
 from src.multi_models.llm.model.base import ChatSession
 from src.multi_models.llm.model.message import ChatMessage
 from src.util.http import async_client, sync_client
@@ -12,7 +12,7 @@ from src.util.http import async_client, sync_client
 
 class ChatQWENSession(ChatSession):
     api_url: HttpUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
-    api_key: str = os.getenv("DASHSCOPE_API_KEY")
+    api_key: str = DASHSCOPE_API_KEY
     system_prompt: Optional[str] = "你是一个有帮助的助手。"
     include_fields: Set[str] = {"role", "content"}
     def sync_generate_text(self, system_prompt: Optional[str], user_prompt: str):
@@ -157,7 +157,7 @@ class ChatQWENSession(ChatSession):
                 completion_tokens=usage.get("completion_tokens"),
                 total_tokens=usage.get("total_tokens"),
             )
-        except KeyError:
+        except KeyError as e:
             raise ValueError(f"Unexpected response format from OpenAI API: {res_json}") from e
     # stream
     def _process_stream_chunk(self, chunk: bytes) -> Union[str, None]:

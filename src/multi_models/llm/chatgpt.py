@@ -4,7 +4,7 @@ from fastapi import Depends
 from httpx import AsyncClient, Client
 import orjson
 from pydantic import HttpUrl
-from config import MAX_MESSAGE_CONTEXT_LENGTH
+from config import MAX_MESSAGE_CONTEXT_LENGTH, OPENAI_API_KEY
 from src.multi_models.llm.model.base import ChatSession
 from src.multi_models.llm.model.message import ChatMessage
 from src.util.http import async_client, sync_client
@@ -12,7 +12,7 @@ from src.util.http import async_client, sync_client
 
 class ChatGPTSession(ChatSession):
     api_url: HttpUrl = "https://api.openai.com/v1/chat/completions"
-    api_key: str = os.getenv("OPENAI_API_KEY")
+    api_key: str = OPENAI_API_KEY
     system_prompt: Optional[str] = "You are a helpful assistant."
     include_fields: Set[str] = {"role", "content"}
     def sync_generate_text(self, system_prompt: Optional[str], user_prompt: str):

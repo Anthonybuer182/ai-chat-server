@@ -6,9 +6,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import text
 import os
 
+from config import DATABASE_URL
 from src.util.logger import get_logger
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://weiqun:123456@localhost:15432/ai-chat")
 
 engine = create_async_engine(DATABASE_URL, echo=True,future = True)
 

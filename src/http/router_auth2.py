@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
+from config import SECRET_KEY
 from src.database.postgre.connection import get_db
 from src.database.postgre.model.user import  UserDB, get_user_by_id,get_user_by_name,verify_password
 from src.util.logger import get_logger
@@ -37,7 +38,6 @@ def get_current_user(token: str = Depends(oauth2_scheme),db: AsyncSession = Depe
     # user = get_user_by_id(db,user.id)
     return user
 
-SECRET_KEY = os.getenv("SECRET_KEY", "sxHgYa6ZcBVzOxpXY5L2AmABJHXrLH7jaqruZpXg3CA")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_SECONDS = 1800
 

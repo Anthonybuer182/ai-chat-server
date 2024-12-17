@@ -10,4 +10,5 @@ httpx==0.25.0             # HTTP client for making asynchronous HTTP requests (u
 pyjwt==2.6.0              # JSON Web Token (JWT) handling for creating and verifying JWTs used for authentication
 alembic==1.11.1           # Database migration tool for managing schema changes in SQLAlchemy-based projects
 python-jose==3.3.0        # Library for creating and verifying JSON Web Tokens (JWT)
-passlib[bcrypt]==1.7.4    # Password hashing library with bcrypt support
+passlib==1.7.4    # Password hashing library with bcrypt support
+bcrypt==3.2.0

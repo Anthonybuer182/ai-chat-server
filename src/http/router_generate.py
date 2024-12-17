@@ -15,6 +15,7 @@ router = APIRouter()
 @router.post("/text")
 async def text(request:ChatRequest,user:UserDB = Depends(get_current_user),db: AsyncSession = Depends(get_db)):
     # 获取角色的系统提示
+    
     # 获取向量数据库的话题上下文
     # 获取会话的消息上下文
     ai = AsyncAIChat(model="qwen-turbo",system_prompt=request.system_prompt,messages_context="")

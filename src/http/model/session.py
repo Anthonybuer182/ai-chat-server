@@ -1,21 +1,26 @@
 from pyexpat.errors import messages
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator, validator
 
 from src.http.model.pagination import PaginationRequest
 
 
 
 class SessionRequest(BaseModel):
-    id: Optional[str]
-    user_id : Optional[str]
-    user_name : Optional[str]
-    character_id: Optional[str]
-    character_name: Optional[str]
-    new_message : Optional[str]
-    messages_context : Optional[str]
+    id: Optional[str] = Field(None, max_length=36, description="Session ID with max 36")
+    user_id: str = Field(...,max_length=36,description="User ID cannot be empty and with max 36")  # 必填字段
+    user_name: str = Field(..., description="User name cannot be empty")  # 必填字段
+    character_id: str = Field(..., max_length=36,description="Character ID cannot be empty and with max 36")  # 必填字段
+    character_name: str = Field(..., description="Character name cannot be empty")  # 必填字段
+    new_message: Optional[str] = Field(None, description="New message from the user (optional)")
+    messages_context: Optional[str] = Field(None, description="Context of previous messages (optional)")
+    @field_validator("user_id", "user_name", "character_id", "character_name")
+    def validate_non_empty(cls, value, field):
+        if not value.strip():
+            raise ValueError(f"{field.name.replace('_', ' ').capitalize()} cannot be empty or blank")
+        return value
 
 class SessionListRequest(PaginationRequest):
-    user_id : Optional[str]
-    character_id: Optional[str]
+    user_id : Optional[str] = Field(None, max_length=36, description="User ID with max 36")
+    character_id: Optional[str] = Field(None, max_length=36, description="Caracter ID with max 36")
 

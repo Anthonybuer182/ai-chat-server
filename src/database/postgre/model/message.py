@@ -1,5 +1,6 @@
 from math import ceil
-import uuid
+from typing import List
+from uuid import uuid4
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -11,6 +12,7 @@ from src.database.postgre.model.base import BaseDB
 from src.http.model.character import CharacterListRequest, CharacterRequest
 from src.http.model.message import MessageListRequest, MessageRequest
 from src.http.model.pagination import PaginationResponse
+from src.multi_models.llm.model.message import ChatMessage
 class MessageDB(BaseDB):
     __tablename__ = "messages"
 
@@ -32,11 +34,38 @@ class MessageDB(BaseDB):
     )
 
 async def create_message(db: AsyncSession, message: MessageRequest):
-    db_message = MessageDB(id=uuid.uuid4(),**message.model_dump(exclude={"id"}))
+    db_message = MessageDB(id=uuid4(),**message.model_dump(exclude={"id"}))
     db.add(db_message)
     await db.commit()
     await db.refresh(db_message)
     return db_message
+
+async def create_messages(db: AsyncSession, message: MessageRequest, new_messages: List[ChatMessage]):
+    db_messages = [
+        MessageDB(
+            id=uuid4(),
+            session_id=message.session_id,
+            platform=message.platform,
+            language=message.language,
+            model=message.model,
+            request_id=chat_message.request_id,
+            role=chat_message.role,
+            content=chat_message.content,
+            finish_reason=chat_message.finish_reason,
+            prompt_tokens=chat_message.prompt_tokens,
+            completion_tokens=chat_message.completion_tokens,
+            total_tokens=chat_message.total_tokens
+        )
+        for chat_message in new_messages
+    ]
+    db.add_all(db_messages)
+    await db.commit()
+    for db_message in db_messages:
+        await db.refresh(db_message)
+
+    return db_messages
+   
+
 async def edit_message(db: AsyncSession, message: MessageRequest):
     async with db.begin():
         result = await db.execute(select(MessageDB).filter(MessageDB.id == message.id))
@@ -86,4 +115,14 @@ async def get_message_list(db: AsyncSession, messageList: MessageListRequest) ->
         page_size=messageList.page_size,
         records=response_records,
     )
+
+async def get_message_limit(db: AsyncSession, session_id: str, limit: int):
+    base_query = select(MessageDB).filter(MessageDB.session_id == session_id).order_by(MessageDB.created_at.desc())
+    paginated_query = base_query.limit(limit)
+    result = await db.execute(paginated_query)
+    records = result.scalars().all()
+    return records
+    
+
+    
 

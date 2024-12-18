@@ -25,6 +25,9 @@ class SyncAIChat(BaseModel):
              return self.session.sync_generate_stream(user_prompt=user_prompt,system_prompt=system_prompt)
          else:
              return self.session.sync_generate_text(user_prompt=user_prompt,system_prompt=system_prompt)
+    @property
+    def new_messages(self):
+        return self.session.new_messages
          
 class AsyncAIChat(SyncAIChat):
     def __init__(self, model: str, system_prompt: Optional[str] = None, messages_context: Optional[str] = None,recent_messages: List[ChatMessage]=[]):
@@ -33,4 +36,5 @@ class AsyncAIChat(SyncAIChat):
          if stream:
              return self.session.async_generate_stream(user_prompt=user_prompt,system_prompt=system_prompt)
          else:
-             return self.session.async_generate_text(user_prompt=user_prompt,system_prompt=system_prompt)    
+             return self.session.async_generate_text(user_prompt=user_prompt,system_prompt=system_prompt)
+    

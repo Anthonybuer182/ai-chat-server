@@ -21,7 +21,7 @@ async def edit(request:UserRequest,db: AsyncSession = Depends(get_db)):
         return failure_response(message="user not found")
     return success_response(data=jsonable_encoder(user, exclude={"password"}))
 @router.get("/get")
-async def get_user(current_user: UserDB = Depends(get_current_user),db: AsyncSession = Depends(get_db)):
+async def get(current_user: UserDB = Depends(get_current_user),db: AsyncSession = Depends(get_db)):
     user=await get_user_by_id(db, current_user.id)
     return success_response(data=jsonable_encoder(user, exclude={"password"}))
 

@@ -1,55 +1,87 @@
 from math import ceil
+from sre_constants import ANY
 import uuid
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import JSON, Boolean, Column, Enum, ForeignKey, Integer,String, Text, func
-
+from sqlalchemy import  JSON, Column, ForeignKey, Index,String, Text, func
+from sqlalchemy.dialects.postgresql import UUID
 from src.database.postgre.model.base import BaseDB
 from src.http.model.character import CharacterListRequest, CharacterRequest
 from src.http.model.pagination import PaginationResponse
+from src.http.model.session import SessionListRequest, SessionRequest
 class SessionDB(BaseDB):
     __tablename__ = "sessions"
-    id = Column(String(36), primary_key=True, index=True, nullable=False, doc="会话唯一标识符。")
-    user_id = Column(String(36), ForeignKey("users.id"), index=True, nullable=False, doc="关联的用户ID")
-    character_id = Column(String(36), ForeignKey("characters.id"), index=True, nullable=False, doc="角色ID")
-    character_name = Column(String(128), index=True, nullable=False, doc="角色名称")
-    character_portrait = Column(String(256), index=True, nullable=False, doc="角色头像")
-    new_message = Column(Text, index=True, nullable=False, doc="最新消息")
-    messages_context = Column(Text,nullable=False, doc="历史消息上下文")
-    
-    
-  
 
-async def save_session(db: AsyncSession,session: SessionDB):
-    db.add(session)
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, nullable=False, doc="会话唯一标识符")
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False, doc="关联的用户ID")
+    user_name = Column(String(64), index=True, nullable=False, doc="用户名称")
+    character_id = Column(UUID(as_uuid=True), ForeignKey("characters.id", ondelete="CASCADE"), index=True, nullable=False, doc="角色ID")
+    character_name = Column(String(64), index=True, nullable=False, doc="角色名称")
+    character_portrait = Column(String(256), nullable=True, doc="角色头像")
+    new_message = Column(Text, nullable=False, doc="最新消息")
+    messages_context = Column(JSON, nullable=False, doc="历史消息上下文（JSON 格式）")
+
+    __table_args__ = (
+        Index('ix_user_character', "user_id", "character_id"),
+    )
+
+async def create_session(db: AsyncSession,session: SessionRequest):
+    db_session = SessionDB(id=str(uuid.uuid4().hex),**session.model_dump(exclude={"id"}))
+    db.add(db_session)
     await db.commit()
-    await db.refresh(session)
-    return session
+    await db.refresh(db_session)
+    return db_session
+
+async def edit_session(db: AsyncSession, session: SessionRequest):
+    async with db.begin():
+        result = await db.execute(select(SessionDB).filter(SessionDB.id == session.id))
+        db_session = result.scalars().first()
+
+        if not db_session:
+            return None  
+        session_data = session.model_dump(include={"new_message", "messages_context"})
+        for key, value in session_data.items():
+            if hasattr(db_session, key) and value is not None and value != "":
+                setattr(db_session, key, value)
+        await db.commit()
+        return db_session
+
 async def delete_session(db: AsyncSession, session_id: str):
     async with db.begin():
-        result = await db.execute(select(SessionDB).filter(SessionDB.name == session_id))
+        result = await db.execute(
+            select(SessionDB).filter(SessionDB.id == session_id)
+        )
+        session = result.scalar_one_or_none()
+        if session:
+            await db.delete(session)
+            return True
+        return False
+    
+async def get_session_by_id(db: AsyncSession, session_id: str):
+    async with db.begin():
+        result = await db.execute(select(SessionDB).filter(SessionDB.id == session_id))
         return result.scalars().first()
     
-async def get_session_list(db: AsyncSession, characterList: CharacterListRequest) -> PaginationResponse[dict]:
+async def get_session_list(db: AsyncSession, sessionList: SessionListRequest) -> PaginationResponse[dict]:
     base_query = select(SessionDB)
 
-    if characterList.visibility is not None:
-        base_query = base_query.filter(SessionDB.visibility == characterList.visibility)
-    if characterList.user_id:
-        base_query = base_query.filter(SessionDB.user_id == characterList.user_id)
+    if sessionList.character_id is not None:
+        base_query = base_query.filter(SessionDB.character_id == sessionList.character_id)
+    if sessionList.user_id:
+        base_query = base_query.filter(SessionDB.user_id == sessionList.user_id)
 
     count_query = base_query.with_only_columns(func.count()).order_by(None)
     total_result = await db.execute(count_query)
     total = total_result.scalar()
 
-    offset = (characterList.page - 1) * characterList.page_size
-    paginated_query = base_query.offset(offset).limit(characterList.page_size)
+    offset = (sessionList.page - 1) * sessionList.page_size
+    paginated_query = base_query.offset(offset).limit(sessionList.page_size)
 
     result = await db.execute(paginated_query)
     records = result.scalars().all()
 
-    total_pages = ceil(total / characterList.page_size) if total > 0 else 0
+    total_pages = ceil(total / sessionList.page_size) if total > 0 else 0
 
     response_records = [record.__dict__ for record in records]
     
@@ -59,8 +91,8 @@ async def get_session_list(db: AsyncSession, characterList: CharacterListRequest
     return PaginationResponse[dict](
         total=total,
         total_pages=total_pages,
-        page=characterList.page,
-        page_size=characterList.page_size,
+        page=sessionList.page,
+        page_size=sessionList.page_size,
         records=response_records,
     )
 

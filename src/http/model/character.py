@@ -7,15 +7,17 @@ from src.http.model.pagination import PaginationRequest
 
 class CharacterRequest(BaseModel):
     id: Optional[str]
+    user_id: str
     name: str
-    background: Optional[str] = None
-    portrait: Optional[str] = None
-    voice_id: Optional[str] = None
-    system_prompt: Optional[str] = None
-    user_prompt: Optional[str] = None
-    tts: Optional[str] = None
-    visibility: Optional[bool] = None
-    data: Optional[dict] = None
+    background: Optional[str]
+    portrait: Optional[str]
+    voice_id: Optional[str]
+    system_prompt: Optional[str]
+    user_prompt: Optional[str]
+    tts: Optional[str]
+    visibility: Optional[bool] 
+    data: Optional[dict] 
+    likes: Optional[int]
     
 
 class CharacterListRequest(PaginationRequest):

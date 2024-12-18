@@ -25,9 +25,9 @@ async def text(request:ChatRequest,user:UserDB = Depends(get_current_user),db: A
 async def image(request:UserRequest,db: AsyncSession = Depends(get_db)):
     return success_response(data="图像生成")
 @router.get("/audio")
-async def get_user(current_user: UserDB = Depends(get_current_user),db: AsyncSession = Depends(get_db)):
+async def audio(current_user: UserDB = Depends(get_current_user),db: AsyncSession = Depends(get_db)):
     return success_response(data="音频生成")
 @router.get("/video")
-async def get_user(current_user: UserDB = Depends(get_current_user),db: AsyncSession = Depends(get_db)):
+async def video(current_user: UserDB = Depends(get_current_user),db: AsyncSession = Depends(get_db)):
     return success_response(data="视频生成")
 

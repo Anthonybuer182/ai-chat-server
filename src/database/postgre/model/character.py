@@ -23,15 +23,15 @@ class CharacterDB(BaseDB):
     data = Column(JSON, nullable=True, doc="存储额外元数据的 JSON 字段。")
     likes = Column(Integer, default=0, nullable=False, doc="角色的点赞数量。")
 
-async def create_char(db: AsyncSession,user_id: str, character: CharacterRequest):
-    db_character = CharacterDB(id=str(uuid.uuid4().hex),user_id=user_id,**character.model_dump(exclude={"id"}))
+async def create_character(db: AsyncSession, character: CharacterRequest):
+    db_character = CharacterDB(id=str(uuid.uuid4().hex),**character.model_dump(exclude={"id"}))
     db.add(db_character)
     await db.commit()
     await db.refresh(db_character)
     return db_character
-async def edit_char(db: AsyncSession, user_id: str, character: CharacterRequest):
+async def edit_character(db: AsyncSession ,character: CharacterRequest):
     async with db.begin():
-        result = await db.execute(select(CharacterDB).filter(CharacterDB.id == character.id, CharacterDB.user_id == user_id))
+        result = await db.execute(select(CharacterDB).filter(CharacterDB.id == character.id, CharacterDB.user_id == character.user_id))
         db_character = result.scalars().first()
 
         if not db_character:
@@ -42,17 +42,17 @@ async def edit_char(db: AsyncSession, user_id: str, character: CharacterRequest)
                 setattr(db_character, key, value)
         await db.commit()
         return db_character
-async def get_char_by_name(db: AsyncSession, character_name: str):
+async def get_character_by_name(db: AsyncSession, character_name: str):
     async with db.begin():
         result = await db.execute(select(CharacterDB).filter(CharacterDB.name == character_name))
         return result.scalars().first()
     
-async def get_char_by_id(db: AsyncSession, character_id: str):
+async def get_character_by_id(db: AsyncSession, character_id: str):
     async with db.begin():
         result = await db.execute(select(CharacterDB).filter(CharacterDB.id == character_id))
         return result.scalars().first()
 
-async def get_char_list(db: AsyncSession, characterList: CharacterListRequest) -> PaginationResponse[dict]:
+async def get_character_list(db: AsyncSession, characterList: CharacterListRequest) -> PaginationResponse[dict]:
     base_query = select(CharacterDB)
 
     if characterList.visibility is not None:

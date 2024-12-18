@@ -6,7 +6,7 @@ T = TypeVar("T")
 class BaseResponse(BaseModel, Generic[T]):
     code: int
     message: str
-    data: Optional[T] = None
+    data: Optional[T]
 def success_response(data: T, message: str = "Success", code: int = 200) -> BaseResponse[T]:
     return BaseResponse(code=code, message=message, data=data)
 

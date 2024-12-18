@@ -3,8 +3,8 @@ from pydantic import BaseModel
 
 class UserRequest(BaseModel):
     id: Optional[str]
-    username: Optional[str] = None
-    password: Optional[str] = None
-    phone: Optional[str] = None
-    email: Optional[str] = None
-    code: Optional[str] = None
+    username: Optional[str]
+    password: Optional[str]
+    phone: Optional[str]
+    email: Optional[str]
+    code: Optional[str]

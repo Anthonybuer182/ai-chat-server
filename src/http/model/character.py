@@ -7,7 +7,6 @@ from src.http.model.pagination import PaginationRequest
 
 class CharacterRequest(BaseModel):
     id: Optional[str] = Field(None, max_length=36, description="Character ID (optional)")
-    user_id: str = Field(..., max_length=36, description="User ID cannot be empty and with max 36")  # 必填字段
     name: str = Field(..., description="Character name cannot be empty")  # 必填字段
     background: str = Field(..., description="Character background or story (optional)")
     portrait: Optional[str] = Field(None, description="URL of the character portrait (optional)")
@@ -19,7 +18,7 @@ class CharacterRequest(BaseModel):
     data: Optional[Dict] = Field(None, description="Additional character data (optional)")
     likes: Optional[int] = Field(None, ge=0, description="Number of likes (optional, non-negative)")
 
-    @field_validator("user_id", "name")
+    @field_validator("name")
     def validate_non_empty(cls, value, field):
         if not value.strip():
             raise ValueError(f"{field.name.capitalize()} cannot be empty or blank")

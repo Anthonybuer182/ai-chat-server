@@ -7,6 +7,8 @@ from alembic import context
 from src.database.postgre.model.base import BaseDB
 from src.database.postgre.model.user import UserDB
 from src.database.postgre.model.character import CharacterDB
+from src.database.postgre.model.session import SessionDB
+from src.database.postgre.model.message import MessageDB
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

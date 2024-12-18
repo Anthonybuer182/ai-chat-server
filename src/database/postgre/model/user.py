@@ -3,12 +3,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from passlib.context import CryptContext
 from sqlalchemy import Column,String
-
+from sqlalchemy.dialects.postgresql import UUID, ENUM
 from src.database.postgre.model.base import BaseDB
 from src.http.model.user import UserRequest
 class UserDB(BaseDB):
     __tablename__ = "users"
-    id = Column(String(36),primary_key=True,index=True,nullable=False)
+    id = Column(UUID(as_uuid=True),primary_key=True,index=True,nullable=False)
     username = Column(String(256),index=True,unique=True,nullable=False)
     password = Column(String(1024),nullable=False)
     phone = Column(String(15),index=True,nullable=False) 
@@ -27,7 +27,7 @@ async def get_user_by_id(db: AsyncSession, user_id: str):
         return result.scalars().first()
 
 async def create_user(db: AsyncSession, user:UserRequest):
-    db_user = UserDB(id=str(uuid.uuid4().hex),password=password_hash(user.password),**user.model_dump(exclude={"id","password","code"}))
+    db_user = UserDB(id=uuid.uuid4(),password=password_hash(user.password),**user.model_dump(exclude={"id","password","code"}))
     db.add(db_user)
     await db.commit()
     await db.refresh(db_user)

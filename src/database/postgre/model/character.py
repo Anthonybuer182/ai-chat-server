@@ -4,14 +4,14 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import JSON, Boolean, Column, ForeignKey, Integer,String, func
-
+from sqlalchemy.dialects.postgresql import UUID, ENUM
 from src.database.postgre.model.base import BaseDB
 from src.http.model.character import CharacterListRequest, CharacterRequest
 from src.http.model.pagination import PaginationResponse
 class CharacterDB(BaseDB):
     __tablename__ = "characters"
-    id = Column(String(36), primary_key=True, index=True, nullable=False, doc="角色唯一标识符。")
-    user_id = Column(String(36), ForeignKey("users.id"), index=True, nullable=False, doc="关联的用户 ID。")
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True, nullable=False, doc="角色唯一标识符。")
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), index=True, nullable=False, doc="关联的用户 ID。")
     name = Column(String(256), index=True, unique=True,nullable=False, doc="角色名称。")
     background = Column(String(1024), nullable=True, doc="角色背景信息。")
     portrait = Column(String(256), nullable=True, doc="角色头像的 URL。")
@@ -23,17 +23,17 @@ class CharacterDB(BaseDB):
     data = Column(JSON, nullable=True, doc="存储额外元数据的 JSON 字段。")
     likes = Column(Integer, default=0, nullable=False, doc="角色的点赞数量。")
 
-async def create_character(db: AsyncSession, character: CharacterRequest):
-    db_character = CharacterDB(id=str(uuid.uuid4().hex),**character.model_dump(exclude={"id"}))
+async def create_character(db: AsyncSession,user_id:str , character: CharacterRequest):
+    db_character = CharacterDB(id=uuid.uuid4(),user_id=user_id,**character.model_dump(exclude={"id"}))
     db.add(db_character)
     await db.commit()
     await db.refresh(db_character)
     return db_character
 
-async def delete_character(db: AsyncSession, character_id: str):
+async def delete_character(db: AsyncSession,user_id:str , character_id: str):
     async with db.begin():
         result = await db.execute(
-            select(CharacterDB).filter(CharacterDB.id == character_id)
+            select(CharacterDB).filter(CharacterDB.user_id == user_id,CharacterDB.id == character_id)
         )
         db_character = result.scalars().first()
 
@@ -44,9 +44,9 @@ async def delete_character(db: AsyncSession, character_id: str):
 
         return True
 
-async def edit_character(db: AsyncSession ,character: CharacterRequest):
+async def edit_character(db: AsyncSession ,user_id:str,character: CharacterRequest):
     async with db.begin():
-        result = await db.execute(select(CharacterDB).filter(CharacterDB.id == character.id, CharacterDB.user_id == character.user_id))
+        result = await db.execute(select(CharacterDB).filter(CharacterDB.user_id == user_id,CharacterDB.id == character.id))
         db_character = result.scalars().first()
 
         if not db_character:

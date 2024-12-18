@@ -1,4 +1,3 @@
-import os
 from re import U
 from fastapi import APIRouter, Depends, HTTPException, status
 from jose import JWTError
@@ -10,7 +9,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from config import SECRET_KEY
 from src.database.postgre.connection import get_db
-from src.database.postgre.model.user import  UserDB, get_user_by_id,get_user_by_name,verify_password
+from src.database.postgre.model.user import  UserDB,get_user_by_name,verify_password
 from src.util.logger import get_logger
 
 logger = get_logger(__name__)
@@ -46,7 +45,7 @@ def create_access_token(user: UserDB, expires_delta: Optional[timedelta] = None)
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(seconds=ACCESS_TOKEN_EXPIRE_SECONDS)
-    to_encode={"sub": user.id,"username":user.username,"exp": expire}
+    to_encode={"sub": str(user.id),"username":user.username,"exp": expire}
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt,(expire - datetime.utcnow()).seconds
 

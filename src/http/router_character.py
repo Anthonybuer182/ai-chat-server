@@ -4,8 +4,6 @@ from src.database.postgre.connection import get_db
 from src.database.postgre.model.character import create_character, delete_character, edit_character, get_character_by_id, get_character_list
 from src.database.postgre.model.user import UserDB
 from src.http.model.character import CharacterListRequest, CharacterRequest
-from src.http.model.pagination import PaginationResponse
-
 from src.http.model.base import  failure_response, success_response
 from src.http.router_auth2 import get_user
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,17 +11,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 router = APIRouter()
 @router.post("/create")
 async def create(request:CharacterRequest,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
-    character=await create_character(db, character=request, user_id=user.id)
+    character=await create_character(db, user_id=user.id, character=request)
     return success_response(data=jsonable_encoder(character))
 
 @router.post("/delete/{id}")
 async def delete(id:str,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
-    result=await delete_character(db, character_id=id)
+    result=await delete_character(db, user_id=user.id, character_id=id)
     return success_response(data=result)
 
 @router.post("/edit")
 async def edit(request:CharacterRequest,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
-    character=await edit_character(db,character=request, user_id=user.id)
+    character=await edit_character(db,user_id=user.id,character=request)
     if not character:
         return failure_response(message="character not found")
     return success_response(data=jsonable_encoder(character))

@@ -19,7 +19,7 @@ class MessageDB(BaseDB):
     platform = Column(ENUM("Web", "Android", "Ios", "MiniProgram", name="platform_enum"), index=True, nullable=False, doc="客户端平台")
     language = Column(String(8), index=True, nullable=False, default="en", doc="聊天消息的语言（ISO 639-1 代码）")
     model = Column(String(32), index=True, nullable=False, doc="模型名称")
-    request_id = Column(UUID(as_uuid=True), index=True, nullable=True, doc="API 请求 ID")
+    request_id = Column(String(48), index=True, nullable=True, doc="API 请求 ID")
     role = Column(String(16), nullable=False, doc="消息角色（如 user/assistant/system）")
     content = Column(Text, nullable=True, doc="消息内容")
     finish_reason = Column(String(128), nullable=True, doc="完成原因")
@@ -32,7 +32,7 @@ class MessageDB(BaseDB):
     )
 
 async def create_message(db: AsyncSession, message: MessageRequest):
-    db_message = MessageDB(id=str(uuid.uuid4().hex),**message.model_dump(exclude={"id"}))
+    db_message = MessageDB(id=uuid.uuid4(),**message.model_dump(exclude={"id"}))
     db.add(db_message)
     await db.commit()
     await db.refresh(db_message)

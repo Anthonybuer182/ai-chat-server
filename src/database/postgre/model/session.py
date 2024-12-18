@@ -25,16 +25,16 @@ class SessionDB(BaseDB):
         Index('ix_user_character', "user_id", "character_id"),
     )
 
-async def create_session(db: AsyncSession,session: SessionRequest):
-    db_session = SessionDB(id=str(uuid.uuid4().hex),**session.model_dump(exclude={"id"}))
+async def create_session(db: AsyncSession,user_id: str,session: SessionRequest):
+    db_session = SessionDB(id=uuid.uuid4(),user_id=user_id,**session.model_dump(exclude={"id"}))
     db.add(db_session)
     await db.commit()
     await db.refresh(db_session)
     return db_session
 
-async def edit_session(db: AsyncSession, session: SessionRequest):
+async def edit_session(db: AsyncSession,user_id:str, session: SessionRequest):
     async with db.begin():
-        result = await db.execute(select(SessionDB).filter(SessionDB.id == session.id))
+        result = await db.execute(select(SessionDB).filter(SessionDB.user_id==user_id,SessionDB.id == session.id))
         db_session = result.scalars().first()
 
         if not db_session:
@@ -46,10 +46,10 @@ async def edit_session(db: AsyncSession, session: SessionRequest):
         await db.commit()
         return db_session
 
-async def delete_session(db: AsyncSession, session_id: str):
+async def delete_session(db: AsyncSession,user_id:str, session_id: str):
      async with db.begin():
         result = await db.execute(
-            select(SessionDB).filter(SessionDB.id == session_id)
+            select(SessionDB).filter(SessionDB.user_id==user_id,SessionDB.id == session_id)
         )
         db_session = result.scalars().first()
 

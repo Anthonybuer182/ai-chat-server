@@ -7,7 +7,6 @@ from sqlalchemy.future import select
 from sqlalchemy import  JSON, Column, ForeignKey, Index,String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from src.database.postgre.model.base import BaseDB
-from src.http.model.character import CharacterListRequest, CharacterRequest
 from src.http.model.pagination import PaginationResponse
 from src.http.model.session import SessionListRequest, SessionRequest
 class SessionDB(BaseDB):
@@ -48,15 +47,18 @@ async def edit_session(db: AsyncSession, session: SessionRequest):
         return db_session
 
 async def delete_session(db: AsyncSession, session_id: str):
-    async with db.begin():
+     async with db.begin():
         result = await db.execute(
             select(SessionDB).filter(SessionDB.id == session_id)
         )
-        session = result.scalar_one_or_none()
-        if session:
-            await db.delete(session)
-            return True
-        return False
+        db_session = result.scalars().first()
+
+        if not db_session:
+            return False  
+        db_session.is_deleted = True
+        await db.commit()
+
+        return True
     
 async def get_session_by_id(db: AsyncSession, session_id: str):
     async with db.begin():

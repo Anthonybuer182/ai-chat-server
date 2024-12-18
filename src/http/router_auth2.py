@@ -32,7 +32,7 @@ async def token(request: OAuth2PasswordRequestForm = Depends(),db: AsyncSession 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-def get_current_user(token: str = Depends(oauth2_scheme),db: AsyncSession = Depends(get_db)):
+def get_user(token: str = Depends(oauth2_scheme),db: AsyncSession = Depends(get_db)):
     user = verify_token(token)
     #内存查询用户会不会好点
     # user = get_user_by_id(db,user.id)

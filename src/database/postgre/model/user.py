@@ -32,10 +32,6 @@ async def create_user(db: AsyncSession, user:UserRequest):
     await db.commit()
     await db.refresh(db_user)
     return db_user
-def password_hash(password):
-    return pwd_context.hash(password)
-def verify_password(origin_password, hashed_password):
-    return pwd_context.verify(origin_password, hashed_password)
 
 async def edit_user(db: AsyncSession, user: UserRequest):
     async with db.begin():
@@ -53,3 +49,23 @@ async def edit_user(db: AsyncSession, user: UserRequest):
                     setattr(db_user, key, value)
         await db.commit()
         return db_user
+
+async def delete_user(db: AsyncSession, user_id: str):
+    async with db.begin():
+        result = await db.execute(
+            select(UserDB).filter(UserDB.id == user_id)
+        )
+        db_user = result.scalars().first()
+
+        if not db_user:
+            return False  
+        db_user.is_deleted = True
+        await db.commit()
+
+        return True
+    
+def password_hash(password):
+    return pwd_context.hash(password)
+def verify_password(origin_password, hashed_password):
+    return pwd_context.verify(origin_password, hashed_password)
+

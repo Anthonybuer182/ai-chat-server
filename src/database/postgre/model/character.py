@@ -29,6 +29,21 @@ async def create_character(db: AsyncSession, character: CharacterRequest):
     await db.commit()
     await db.refresh(db_character)
     return db_character
+
+async def delete_character(db: AsyncSession, character_id: str):
+    async with db.begin():
+        result = await db.execute(
+            select(CharacterDB).filter(CharacterDB.id == character_id)
+        )
+        db_character = result.scalars().first()
+
+        if not db_character:
+            return False  
+        db_character.is_deleted = True
+        await db.commit()
+
+        return True
+
 async def edit_character(db: AsyncSession ,character: CharacterRequest):
     async with db.begin():
         result = await db.execute(select(CharacterDB).filter(CharacterDB.id == character.id, CharacterDB.user_id == character.user_id))

@@ -1,9 +1,6 @@
 from typing import Dict, Optional
 from pydantic import BaseModel, Field, field_validator
-
 from src.http.model.pagination import PaginationRequest
-
-
 
 class CharacterRequest(BaseModel):
     id: Optional[str] = Field(None, max_length=36, description="Character ID (optional)")
@@ -12,7 +9,6 @@ class CharacterRequest(BaseModel):
     portrait: Optional[str] = Field(None, description="URL of the character portrait (optional)")
     voice_id: Optional[str] = Field(None, description="Voice ID for TTS (optional)")
     system_prompt: Optional[str] = Field(None, description="System prompt text (optional)")
-    user_prompt: Optional[str] = Field(None, description="User prompt text (optional)")
     tts: Optional[str] = Field(None, description="Text-to-speech configuration (optional)")
     visibility: bool = Field(..., description="Visibility status cannot be empty")  # 必填字段
     data: Optional[Dict] = Field(None, description="Additional character data (optional)")

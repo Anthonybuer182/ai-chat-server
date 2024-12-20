@@ -15,7 +15,7 @@ class SyncAIChat(BaseModel):
     def __init__(self, model: str,system_prompt:Optional[str]=None,messages_context:Optional[str]=None,recent_messages: List[ChatMessage]=[],client:Union[Client, AsyncClient]=sync_client()):
         super().__init__(session=None)
         if "gpt" in model:
-            self.session=ChatGPTSession(client=client,model=model,system_prompt=system_prompt,messages_context=messages_context,recent_messages=[])
+            self.session=ChatGPTSession(client=client,model=model,system_prompt=system_prompt,messages_context=messages_context,recent_messages=recent_messages)
         elif "qwen" in model:
             self.session=ChatQWENSession(client=client,model=model,system_prompt=system_prompt,messages_context=messages_context,recent_messages=recent_messages)
         else:

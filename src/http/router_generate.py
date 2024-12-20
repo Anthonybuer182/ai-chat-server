@@ -34,7 +34,12 @@ async def text(request:MessageRequest,user:UserDB = Depends(get_user),db: AsyncS
             created_at=message.created_at
         ) for message in  reversed(messages)]
     ai = AsyncAIChat(model=request.model,system_prompt=request.system_prompt or character.system_prompt,messages_context=session.messages_context,recent_messages=recent_messages)
-    text = await ai(request.user_prompt,stream=False)
+    if request.stream:
+        async for chunk in ai(request.user_prompt, request.stream):
+            text =chunk["response"]
+            
+    else:
+         text = await ai(request.user_prompt,request.stream)
     saved_messages = await create_messages(db, request, ai.new_messages)
     if not saved_messages:
         return failure_response(message="failed to save messages")

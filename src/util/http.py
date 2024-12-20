@@ -30,7 +30,7 @@ def async_client() -> httpx.AsyncClient:
         }
     )
 
-MAX_BODY_LENGTH = 500  # 限制请求和响应体的最大长度
+MAX_BODY_LENGTH = 50000  # 限制请求和响应体的最大长度
 
 def log_request(request: httpx.Request):
     """同步请求日志"""

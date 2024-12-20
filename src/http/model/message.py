@@ -10,6 +10,7 @@ class MessageRequest(BaseModel):
     model: str = Field(..., description="Model name cannot be empty")
     system_prompt: Optional[str] = Field(None, description="Optional system instructions")
     user_prompt: str = Field(..., description="User prompt cannot be empty")
+    stream:Optional[bool] = Field(None, description = "Optional stream status")
     platform: str = Field(..., description="Platform cannot be empty") 
     language: str = Field(..., description="Language cannot be empty")
 

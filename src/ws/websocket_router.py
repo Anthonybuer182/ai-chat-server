@@ -22,10 +22,11 @@ async def websocket_endpoint(
     session_id: str = Path(...),
     model:str = Query(None),
     system_prompt: str = Query(None),
+    stream:bool = Query(None),
     platform:str = Query(None),
-    language:str = Query(None)
-    ,user:UserDB = Depends(get_ws_user)
-    ,db: AsyncSession = Depends(get_db)
+    language:str = Query(None),
+    user:UserDB = Depends(get_ws_user),
+    db: AsyncSession = Depends(get_db)
     ):
     await websocket.accept()
     session = await get_session_by_id(db,session_id)
@@ -52,8 +53,8 @@ async def websocket_endpoint(
             # Receive message from client
             user_prompt = await websocket.receive_text()
             logger.info(f"Received message: {user_prompt}")
-            text = await ai(user_prompt,stream=False)
-            messageRequest = MessageRequest(session_id=session_id,model=model,system_prompt=system_prompt,platform=platform,language=language,user_prompt=user_prompt)
+            text = await ai(user_prompt,stream)
+            messageRequest = MessageRequest(session_id=session_id,model=model,system_prompt=system_prompt,stream=stream,platform=platform,language=language,user_prompt=user_prompt)
             saved_messages = await create_messages(db, messageRequest, ai.new_messages)
             await websocket.send_text(text)
         except WebSocketDisconnect:

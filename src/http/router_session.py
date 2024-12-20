@@ -13,7 +13,7 @@ router = APIRouter()
 
 @router.post("/create")
 async def create(request:SessionRequest,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
-    session = await create_session(db=db,user_id=user.id,session=request)
+    session = await create_session(db=db,user=user,session=request)
     return success_response(data=jsonable_encoder(session))
 
 @router.post("/delete/{id}")
@@ -23,7 +23,7 @@ async def delete(id:str,user: UserDB = Depends(get_user),db: AsyncSession = Depe
 
 @router.post("/edit")
 async def edit(request:SessionRequest,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
-    session = await edit_session(db=db,user_id=user.id,session=request)
+    session = await edit_session(db=db,user=user,session=request)
     return success_response(data=jsonable_encoder(session))
 
 @router.get("/get/{id}")

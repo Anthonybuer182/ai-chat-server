@@ -7,6 +7,8 @@ from sqlalchemy.future import select
 from sqlalchemy import  JSON, Column, ForeignKey, Index,String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from src.database.postgre.model.base import BaseDB
+from src.database.postgre.model.character import get_character_by_id
+from src.database.postgre.model.user import UserDB
 from src.http.model.pagination import PaginationResponse
 from src.http.model.session import SessionListRequest, SessionRequest
 class SessionDB(BaseDB):
@@ -25,16 +27,19 @@ class SessionDB(BaseDB):
         Index('ix_user_character', "user_id", "character_id"),
     )
 
-async def create_session(db: AsyncSession,user_id: str,session: SessionRequest):
-    db_session = SessionDB(id=uuid.uuid4(),user_id=user_id,**session.model_dump(exclude={"id"}))
+async def create_session(db: AsyncSession,user:UserDB ,session: SessionRequest):
+    character = await get_character_by_id(db,session.character_id)
+    if character is None:
+        raise ValueError("Character not found")
+    db_session = SessionDB(id=uuid.uuid4(),user_id=user.id,user_name=user.username,character_name=character.name,**session.model_dump(exclude={"id"}))
     db.add(db_session)
     await db.commit()
     await db.refresh(db_session)
     return db_session
 
-async def edit_session(db: AsyncSession,user_id:str, session: SessionRequest):
+async def edit_session(db: AsyncSession,user:UserDB ,session: SessionRequest):
     async with db.begin():
-        result = await db.execute(select(SessionDB).filter(SessionDB.user_id==user_id,SessionDB.id == session.id))
+        result = await db.execute(select(SessionDB).filter(SessionDB.user_id==user.id,SessionDB.user_name==user.username,SessionDB.id == session.id))
         db_session = result.scalars().first()
 
         if not db_session:

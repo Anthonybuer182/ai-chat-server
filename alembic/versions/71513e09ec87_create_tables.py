@@ -1,8 +1,8 @@
 """create tables
 
-Revision ID: 76c9b835fd42
+Revision ID: 71513e09ec87
 Revises: 
-Create Date: 2024-12-18 16:42:56.163990
+Create Date: 2024-12-20 09:48:37.092680
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '76c9b835fd42'
+revision = '71513e09ec87'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -40,8 +40,7 @@ def upgrade() -> None:
     sa.Column('background', sa.String(length=1024), nullable=True),
     sa.Column('portrait', sa.String(length=256), nullable=True),
     sa.Column('voice_id', sa.String(length=15), nullable=True),
-    sa.Column('system_prompt', sa.String(length=512), nullable=False),
-    sa.Column('user_prompt', sa.String(length=512), nullable=False),
+    sa.Column('system_prompt', sa.String(length=1024), nullable=False),
     sa.Column('tts', sa.String(length=256), nullable=False),
     sa.Column('visibility', sa.Boolean(), nullable=False),
     sa.Column('data', sa.JSON(), nullable=True),
@@ -56,7 +55,6 @@ def upgrade() -> None:
     op.create_index(op.f('ix_characters_name'), 'characters', ['name'], unique=True)
     op.create_index(op.f('ix_characters_system_prompt'), 'characters', ['system_prompt'], unique=False)
     op.create_index(op.f('ix_characters_user_id'), 'characters', ['user_id'], unique=False)
-    op.create_index(op.f('ix_characters_user_prompt'), 'characters', ['user_prompt'], unique=False)
     op.create_index(op.f('ix_characters_visibility'), 'characters', ['visibility'], unique=False)
     op.create_table('sessions',
     sa.Column('id', sa.UUID(), nullable=False),
@@ -127,7 +125,6 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_sessions_character_id'), table_name='sessions')
     op.drop_table('sessions')
     op.drop_index(op.f('ix_characters_visibility'), table_name='characters')
-    op.drop_index(op.f('ix_characters_user_prompt'), table_name='characters')
     op.drop_index(op.f('ix_characters_user_id'), table_name='characters')
     op.drop_index(op.f('ix_characters_system_prompt'), table_name='characters')
     op.drop_index(op.f('ix_characters_name'), table_name='characters')

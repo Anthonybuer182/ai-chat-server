@@ -54,7 +54,8 @@ async def create_messages(db: AsyncSession, message: MessageRequest, new_message
             finish_reason=chat_message.finish_reason,
             prompt_tokens=chat_message.prompt_tokens,
             completion_tokens=chat_message.completion_tokens,
-            total_tokens=chat_message.total_tokens
+            total_tokens=chat_message.total_tokens,
+            created_at=chat_message.created_at
         )
         for chat_message in new_messages
     ]

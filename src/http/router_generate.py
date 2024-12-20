@@ -18,7 +18,6 @@ router = APIRouter()
 
 @router.post("/text")
 async def text(request:MessageRequest,user:UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
-    # 获取角色的系统提示
     session = await get_session_by_id(db,request.session_id)
     if not session:
         return failure_response(message="session not found")
@@ -33,8 +32,8 @@ async def text(request:MessageRequest,user:UserDB = Depends(get_user),db: AsyncS
             role=message.role,
             content=message.content,
             created_at=message.created_at
-        ) for message in messages]
-    ai = AsyncAIChat(model="qwen-turbo",system_prompt=request.system_prompt or character.system_prompt,messages_context=session.messages_context,recent_messages=recent_messages)
+        ) for message in  reversed(messages)]
+    ai = AsyncAIChat(model=request.model,system_prompt=request.system_prompt or character.system_prompt,messages_context=session.messages_context,recent_messages=recent_messages)
     text = await ai(request.user_prompt,stream=False)
     saved_messages = await create_messages(db, request, ai.new_messages)
     if not saved_messages:

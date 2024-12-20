@@ -40,12 +40,12 @@ async def text(request:MessageRequest,user:UserDB = Depends(get_user),db: AsyncS
         return failure_response(message="failed to save messages")
     return success_response(data=text)
 @router.post("/image")
-async def image(request:UserRequest,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
+async def image(request:MessageRequest,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
     return success_response(data="图像生成")
 @router.get("/audio")
-async def audio(user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
+async def audio(request:MessageRequest,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
     return success_response(data="音频生成")
 @router.get("/video")
-async def video(user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
+async def video(request:MessageRequest,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
     return success_response(data="视频生成")
 

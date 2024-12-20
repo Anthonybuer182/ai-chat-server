@@ -3,10 +3,10 @@ from fastapi import FastAPI,HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from src.database.postgre.connection import init_db
 from src.http.exceptions import setup_exception_handlers
-from src.http.router_config import combined_router
+from src.http.router_config import restful_router
 from sqlalchemy.exc import SQLAlchemyError
 app =FastAPI()
-
+setup_exception_handlers(app)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,5 +21,5 @@ async def startup():
     except SQLAlchemyError:
         raise HTTPException(status_code=500, detail="Database connection failed")
     
-app.include_router(combined_router)
-setup_exception_handlers(app)
+app.include_router(restful_router)
+app.include_router(restful_router)

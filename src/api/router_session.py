@@ -3,12 +3,12 @@ from fastapi.encoders import jsonable_encoder
 from src.database.postgre.connection import get_db
 from src.database.postgre.model.session import create_session, delete_session, edit_session, get_session_by_id, get_session_list
 from src.database.postgre.model.user import UserDB
-from src.http.model.base import success_response
-from src.http.model.session import SessionListRequest, SessionRequest
-from src.http.model.pagination import PaginationResponse
+from src.api.model.base import success_response
+from src.api.model.session import SessionListRequest, SessionRequest
+from src.api.model.pagination import PaginationResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.http.router_auth2 import get_user
+from src.api.router_auth2 import get_user
 router = APIRouter()
 
 @router.post("/create")

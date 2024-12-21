@@ -3,10 +3,10 @@ from fastapi import APIRouter, Depends
 from src.database.postgre.connection import get_db
 from src.database.postgre.model.message import get_message_list
 from src.database.postgre.model.user import UserDB
-from src.http.model.base import BaseResponse, success_response
-from src.http.model.message import MessageListRequest
-from src.http.model.pagination import PaginationResponse
-from src.http.router_auth2 import get_user
+from src.api.model.base import BaseResponse, success_response
+from src.api.model.message import MessageListRequest
+from src.api.model.pagination import PaginationResponse
+from src.api.router_auth2 import get_user
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()

@@ -2,7 +2,7 @@ from pyexpat.errors import messages
 from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 
-from src.http.model.pagination import PaginationRequest
+from src.api.model.pagination import PaginationRequest
 
 
 

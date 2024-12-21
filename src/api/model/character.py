@@ -1,6 +1,6 @@
 from typing import Dict, Optional
 from pydantic import BaseModel, Field, field_validator
-from src.http.model.pagination import PaginationRequest
+from src.api.model.pagination import PaginationRequest
 
 class CharacterRequest(BaseModel):
     id: Optional[str] = Field(None, max_length=36, description="Character ID (optional)")

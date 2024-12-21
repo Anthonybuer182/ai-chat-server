@@ -9,8 +9,8 @@ from sqlalchemy.dialects.postgresql import UUID
 from src.database.postgre.model.base import BaseDB
 from src.database.postgre.model.character import get_character_by_id
 from src.database.postgre.model.user import UserDB
-from src.http.model.pagination import PaginationResponse
-from src.http.model.session import SessionListRequest, SessionRequest
+from src.api.model.pagination import PaginationResponse
+from src.api.model.session import SessionListRequest, SessionRequest
 class SessionDB(BaseDB):
     __tablename__ = "sessions"
 

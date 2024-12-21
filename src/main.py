@@ -3,8 +3,8 @@ import asyncio
 from fastapi import FastAPI,HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from src.database.postgre.connection import init_db
-from src.http.exceptions import setup_exception_handlers
-from src.http.router_config import restful_router
+from src.api.exceptions import setup_exception_handlers
+from src.api.router_config import restful_router
 from sqlalchemy.exc import SQLAlchemyError
 from src.util.logger import get_logger
 from src.ws.websocket_router import websocket_router,manager
@@ -39,6 +39,3 @@ async def shutdown():
 app.include_router(restful_router)
 app.include_router(websocket_router)
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)

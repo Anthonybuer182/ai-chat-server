@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from src.http import router_auth2, router_character, router_session, router_generate, router_user
+from src.api import router_auth2, router_character, router_session, router_generate, router_user
 restful_router = APIRouter()
 restful_router.include_router(router_auth2.router, tags=["Token"])
 restful_router.include_router(router_user.router, prefix="/user", tags=["User"])

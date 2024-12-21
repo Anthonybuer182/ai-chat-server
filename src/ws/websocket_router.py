@@ -4,7 +4,7 @@ from src.database.postgre.model.character import get_character_by_id
 from src.database.postgre.model.message import create_messages, get_message_limit
 from src.database.postgre.model.session import get_session_by_id
 from src.database.postgre.model.user import UserDB
-from src.http.model.message import MessageRequest
+from src.api.model.message import MessageRequest
 from src.multi_models.llm.model.message import ChatMessage
 from src.util.logger import get_logger
 from src.ws.connection_manager import ConnectionManager

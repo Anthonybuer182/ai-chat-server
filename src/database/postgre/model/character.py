@@ -6,8 +6,8 @@ from sqlalchemy.future import select
 from sqlalchemy import JSON, Boolean, Column, ForeignKey, Integer,String, func
 from sqlalchemy.dialects.postgresql import UUID, ENUM
 from src.database.postgre.model.base import BaseDB
-from src.http.model.character import CharacterListRequest, CharacterRequest
-from src.http.model.pagination import PaginationResponse
+from src.api.model.character import CharacterListRequest, CharacterRequest
+from src.api.model.pagination import PaginationResponse
 class CharacterDB(BaseDB):
     __tablename__ = "characters"
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, nullable=False, doc="角色唯一标识符。")

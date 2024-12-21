@@ -3,9 +3,9 @@ from fastapi.encoders import jsonable_encoder
 from src.database.postgre.connection import get_db
 from src.database.postgre.model.character import create_character, delete_character, edit_character, get_character_by_id, get_character_list
 from src.database.postgre.model.user import UserDB
-from src.http.model.character import CharacterListRequest, CharacterRequest
-from src.http.model.base import  failure_response, success_response
-from src.http.router_auth2 import get_user
+from src.api.model.character import CharacterListRequest, CharacterRequest
+from src.api.model.base import  failure_response, success_response
+from src.api.router_auth2 import get_user
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()

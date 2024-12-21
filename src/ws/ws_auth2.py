@@ -1,7 +1,7 @@
 from fastapi import Query, WebSocket,status
 
 from src.database.postgre.model.user import UserDB
-from src.http.router_auth2 import verify_token
+from src.api.router_auth2 import verify_token
 
 
 async def get_ws_user(

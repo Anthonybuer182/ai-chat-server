@@ -2,9 +2,9 @@
 from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
 from src.database.postgre.model.user import UserDB, create_user, delete_user, edit_user, get_user_by_id
-from src.http.model.user import UserRequest
-from src.http.router_auth2 import  get_user
-from src.http.model.base import success_response,failure_response
+from src.api.model.user import UserRequest
+from src.api.router_auth2 import  get_user
+from src.api.model.base import success_response,failure_response
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.database.postgre.connection import get_db
 

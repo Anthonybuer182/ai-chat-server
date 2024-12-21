@@ -9,9 +9,9 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import UUID, ENUM
 from src.database.postgre.model.base import BaseDB
-from src.http.model.character import CharacterListRequest, CharacterRequest
-from src.http.model.message import MessageListRequest, MessageRequest
-from src.http.model.pagination import PaginationResponse
+from src.api.model.character import CharacterListRequest, CharacterRequest
+from src.api.model.message import MessageListRequest, MessageRequest
+from src.api.model.pagination import PaginationResponse
 from src.multi_models.llm.model.message import ChatMessage
 class MessageDB(BaseDB):
     __tablename__ = "messages"

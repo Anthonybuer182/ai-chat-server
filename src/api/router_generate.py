@@ -37,7 +37,7 @@ async def text(request:MessageRequest,user:UserDB = Depends(get_user),db: AsyncS
     if request.stream:
         async for chunk in ai(request.user_prompt, request.stream):
             text =chunk["response"]
-            
+            return success_response(data=text)
     else:
          text = await ai(request.user_prompt,request.stream)
     saved_messages = await create_messages(db, request, ai.new_messages)

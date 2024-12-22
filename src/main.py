@@ -3,7 +3,7 @@ import asyncio
 from fastapi import FastAPI,HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from src.database.postgre.connection import init_db
-from src.api.exceptions import setup_exception_handlers
+from src.api.exceptions import add_exception_handlers
 from src.api.router_config import restful_router
 from sqlalchemy.exc import SQLAlchemyError
 from src.util.logger import get_logger
@@ -12,7 +12,7 @@ from src.ws.websocket_router import websocket_router,manager
 app =FastAPI()
 logger = get_logger(__name__)
 
-setup_exception_handlers(app)
+add_exception_handlers(app)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

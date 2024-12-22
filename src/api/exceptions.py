@@ -25,7 +25,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         status_code=422,
         content={"code": 422, "message": "Validation Error", "data": exc.errors()},
     )
-def setup_exception_handlers(app: FastAPI):
+def add_exception_handlers(app: FastAPI):
     app.add_exception_handler(StarletteHTTPException, http_exception_handler)
     app.add_exception_handler(RequestValidationError, validation_exception_handler)
     app.add_exception_handler(Exception, internal_server_error_handler)

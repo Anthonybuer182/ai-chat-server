@@ -52,11 +52,21 @@ async def websocket_endpoint(
                 created_at=message.created_at
             ) for message in reversed(messages)]
         
+        async def on_word(word):
+            logger.info(f"socket:on_word(){word}")
+            # 将消息放入广播队列
+            await manager.message_queue.put((text, session_id))
+
+        async def on_sentence(sentence):
+            logger.info(f"socket:on_sentence(){sentence}")
+
         ai = AsyncAIChat(
             model=model,
             system_prompt=system_prompt or character.system_prompt,
             messages_context=session.messages_context,
-            recent_messages=recent_messages
+            recent_messages=recent_messages,
+            on_word=on_word,
+            on_sentence=on_sentence
         )
         
         while True:
@@ -78,9 +88,6 @@ async def websocket_endpoint(
                 )
                 saved_messages = await create_messages(db, messageRequest, ai.new_messages)
                 
-                # 将消息放入广播队列
-                await manager.message_queue.put((text, session_id))
-
             except WebSocketDisconnect:
                 logger.info(f"Client disconnected from session {session_id}")
                 break

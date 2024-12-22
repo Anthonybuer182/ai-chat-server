@@ -1,9 +1,7 @@
-import os
 from typing import Any, Optional, Set, Union, List
 from fastapi import Depends
-from httpx import AsyncClient, Client
 import orjson
-from pydantic import Field, HttpUrl
+from pydantic import Field, HttpUrl, field_validator, validator
 from config import DASHSCOPE_API_KEY, MAX_MESSAGE_CONTEXT_LENGTH
 from src.multi_models.llm.model.base import ChatSession
 from src.multi_models.llm.model.message import ChatMessage
@@ -15,8 +13,10 @@ class ChatQWENSession(ChatSession):
     api_key: str = DASHSCOPE_API_KEY
     system_prompt: str = Field("你是一个提供帮助的助手。", exclude_none=True)
     include_fields: Set[str] = {"role", "content"}
-    # def __init__(self, system_prompt: Optional[str] = None):
-    #     self.system_prompt = system_prompt if system_prompt is not None else "你是一个有帮助的助手。"
+    # # 不应该传空字符串啊
+    # @field_validator("system_prompt", pre=True, always=True)
+    # def set_default_system_prompt(cls, v):
+    #     return v if v not in (None, "") else "你是一个提供帮助的助手。"
 
     def sync_generate_text(self, user_prompt: str, system_prompt: Optional[str]):
         """Handles user interaction with the AI model."""
@@ -69,6 +69,8 @@ class ChatQWENSession(ChatSession):
             for chunk in response.iter_lines():
                 delta = self._process_stream_chunk(chunk)
                 if delta:
+                    self.on_word(delta)
+                    self._on_llm_sentence(delta)
                     yield self._handle_stream_content(delta, content)
 
         # streaming does not currently return token counts
@@ -99,6 +101,8 @@ class ChatQWENSession(ChatSession):
             async for chunk in response.aiter_lines():
                 delta = self._process_stream_chunk(chunk)
                 if delta:
+                    self.on_word(delta)
+                    self._on_llm_sentence(delta)
                     yield self._handle_stream_content(delta, content)
 
         # streaming does not currently return token counts
@@ -177,3 +181,24 @@ class ChatQWENSession(ChatSession):
         """处理拼接后的流数据并生成响应。"""
         content.append(delta)
         return {"delta": delta, "response": ''.join(content)}
+    
+    def _on_llm_sentence(self, world: str):
+            for char in world:
+                punctuation = False
+                if (
+
+                    (
+                        char == " "
+                        and self.current_sentence != ""
+                        and self.current_sentence[-1] in {".", "?", "!"}
+                    )
+                    or (char in {"。", "？", "！"})
+                    or (char in {"\n", "\r", "\t"})
+                ):
+                    punctuation = True
+
+                self.current_sentence += char
+
+                if punctuation and self.current_sentence.strip():
+                    self.on_sentence(self.current_sentence)
+                    self.current_sentence = None

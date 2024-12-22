@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from ast import Dict
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional, Union, Callable, Coroutine
 from uuid import UUID, uuid4
 from httpx import AsyncClient, Client
 from pydantic import BaseModel, Field
@@ -15,9 +15,12 @@ class ChatSession(BaseModel,ABC):
     api_key: str
     model: str
     params:dict[str,Any] = {"temperature": 0.7}
-    messages_context: Optional[str] # 之前的消息或者聊天话题作为上下文
+    messages_context: Optional[str] = None # 之前的消息或者聊天话题作为上下文
     new_messages: List[ChatMessage] = []
     recent_messages: List[ChatMessage] = []
+    on_word: Optional[Union[Callable[[str], None], Callable[[str], Coroutine[Any, Any, None]]]] = None
+    on_sentence: Optional[Union[Callable[[str], None], Callable[[str], Coroutine[Any, Any, None]]]] = None
+    current_sentence: Optional[str] = None
     class Config:
         arbitrary_types_allowed = True
     @abstractmethod

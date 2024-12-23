@@ -1,5 +1,6 @@
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import StreamingResponse
 from config import MAX_MESSAGE_CONTEXT_LENGTH
 from src.database.postgre.model.character import get_character_by_id
 from src.database.postgre.model.message import create_messages, get_message_limit
@@ -35,9 +36,10 @@ async def text(request:MessageRequest,user:UserDB = Depends(get_user),db: AsyncS
         ) for message in  reversed(messages)]
     ai = AsyncAIChat(model=request.model,system_prompt=request.system_prompt or character.system_prompt,messages_context=session.messages_context,recent_messages=recent_messages)
     if request.stream:
-        async for chunk in ai(request.user_prompt, request.stream):
-            text =chunk["response"]
-            return success_response(data=text)
+        return StreamingResponse(
+                (chunk["response"] for chunk in ai(request.user_prompt, request.stream)),
+                media_type="text/plain"
+            )
     else:
          text = await ai(request.user_prompt,request.stream)
     saved_messages = await create_messages(db, request, ai.new_messages)

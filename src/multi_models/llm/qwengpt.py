@@ -11,12 +11,14 @@ from src.util.http import async_client, sync_client
 class ChatQWENSession(ChatSession):
     api_url: HttpUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
     api_key: str = DASHSCOPE_API_KEY
-    system_prompt: str = Field("你是一个提供帮助的助手。", exclude_none=True)
+    system_prompt: Optional[str] = Field(None, exclude_none=True)
     include_fields: Set[str] = {"role", "content"}
-    # # 不应该传空字符串啊
-    # @field_validator("system_prompt", pre=True, always=True)
-    # def set_default_system_prompt(cls, v):
-    #     return v if v not in (None, "") else "你是一个提供帮助的助手。"
+
+    @field_validator('system_prompt')
+    def set_default_system_prompt(cls, value):
+        if value is None or value.strip() == "":
+            return "你是一个提供帮助的助手。"
+        return value
 
     def sync_generate_text(self, user_prompt: str, system_prompt: Optional[str]):
         """Handles user interaction with the AI model."""
@@ -101,7 +103,8 @@ class ChatQWENSession(ChatSession):
             async for chunk in response.aiter_lines():
                 delta = self._process_stream_chunk(chunk)
                 if delta:
-                    self.on_word(delta)
+                    if self.on_word is not None:
+                        self.on_word(delta)
                     self._on_llm_sentence(delta)
                     yield self._handle_stream_content(delta, content)
 
@@ -183,22 +186,11 @@ class ChatQWENSession(ChatSession):
         return {"delta": delta, "response": ''.join(content)}
     
     def _on_llm_sentence(self, world: str):
-            for char in world:
-                punctuation = False
-                if (
-
-                    (
-                        char == " "
-                        and self.current_sentence != ""
-                        and self.current_sentence[-1] in {".", "?", "!"}
-                    )
-                    or (char in {"。", "？", "！"})
-                    or (char in {"\n", "\r", "\t"})
-                ):
-                    punctuation = True
-
+        for char in world:
+            if char in {",",".", "?", "!","，","。", "？", "！", "\n", "\r", "\t"}:
                 self.current_sentence += char
-
-                if punctuation and self.current_sentence.strip():
+                if self.current_sentence.strip() and self.on_sentence is not None:
                     self.on_sentence(self.current_sentence)
-                    self.current_sentence = None
+                    self.current_sentence = ""
+            else:
+                self.current_sentence += char

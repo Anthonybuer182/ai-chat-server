@@ -7,8 +7,13 @@ from sqlalchemy import pool
 
 from alembic import context
 from src.database.postgre.model.base import BaseDB
+from src.database.postgre.model.user import UserDB
+from src.database.postgre.model.character import CharacterDB
+from src.database.postgre.model.session import SessionDB
+from src.database.postgre.model.message import MessageDB
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../")
+# sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../")
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

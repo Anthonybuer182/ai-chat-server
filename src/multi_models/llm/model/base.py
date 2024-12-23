@@ -20,7 +20,7 @@ class ChatSession(BaseModel,ABC):
     recent_messages: List[ChatMessage] = []
     on_word: Optional[Union[Callable[[str], None], Callable[[str], Coroutine[Any, Any, None]]]] = None
     on_sentence: Optional[Union[Callable[[str], None], Callable[[str], Coroutine[Any, Any, None]]]] = None
-    current_sentence: Optional[str] = None
+    current_sentence: str = ""
     class Config:
         arbitrary_types_allowed = True
     @abstractmethod

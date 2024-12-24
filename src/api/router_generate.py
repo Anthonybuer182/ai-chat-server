@@ -36,8 +36,11 @@ async def text(request:MessageRequest,user:UserDB = Depends(get_user),db: AsyncS
         ) for message in  reversed(messages)]
     ai = AsyncAIChat(model=request.model,system_prompt=request.system_prompt or character.system_prompt,messages_context=session.messages_context,recent_messages=recent_messages)
     if request.stream:
+        async def generate():
+            async for chunk in ai(request.user_prompt, request.stream):
+                yield chunk["delta"]
         return StreamingResponse(
-                (chunk["response"] for chunk in ai(request.user_prompt, request.stream)),
+                generate(),
                 media_type="text/plain"
             )
     else:

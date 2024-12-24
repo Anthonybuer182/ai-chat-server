@@ -1,3 +1,4 @@
+import re
 from typing import Any, Optional, Set, Union, List
 from fastapi import Depends
 import orjson
@@ -185,9 +186,9 @@ class ChatQWENSession(ChatSession):
         content.append(delta)
         return {"delta": delta, "response": ''.join(content)}
     
-    def _on_llm_sentence(self, world: str):
-        for char in world:
-            if char in {",",".", "?", "!","，","。", "？", "！", "\n", "\r", "\t"}:
+    def _on_llm_sentence(self, word: str):
+        for char in word:
+            if re.match(r"[,.\?!，。？！\n\r\t]", char):
                 self.current_sentence += char
                 if self.current_sentence.strip() and self.on_sentence is not None:
                     self.on_sentence(self.current_sentence)

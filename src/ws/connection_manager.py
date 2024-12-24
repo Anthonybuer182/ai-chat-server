@@ -4,6 +4,8 @@ import asyncio
 from datetime import datetime
 from dataclasses import dataclass, asdict
 
+from fastapi.websockets import WebSocketState
+
 from src.util.logger import get_logger
 
 logger = get_logger(__name__)
@@ -19,13 +21,16 @@ class ConnectionManager:
         self.lock = asyncio.Lock()
 
     async def connect(self, websocket: WebSocket, session_id: str):
-        await websocket.accept()
-        async with self.lock:
-            if session_id not in self.active_connections:
-                self.active_connections[session_id] = set()
-            self.active_connections[session_id].add(websocket)
-            self.connection_counter += 1
-            logger.info(f"New connection in session {session_id}. Total connections: {self.connection_counter}")
+        try:
+            await websocket.accept()
+            async with self.lock:
+                if session_id not in self.active_connections:
+                    self.active_connections[session_id] = set()
+                self.active_connections[session_id].add(websocket)
+                self.connection_counter += 1
+                logger.info(f"New connection in session {session_id}. Total connections: {self.connection_counter}")
+        except Exception as e:
+            logger.error(f"Error during WebSocket connection: {e}")
 
     async def disconnect(self, websocket: WebSocket, session_id: str):
         async with self.lock:
@@ -40,7 +45,8 @@ class ConnectionManager:
             disconnected = set()
             for connection in self.active_connections[session_id]:
                 try:
-                    await connection.send_json(message)
+                    if connection.client_state == WebSocketState.CONNECTED:
+                        await connection.send_json(message)
                 except Exception as e:
                     logger.error(f"Error broadcasting to client: {e}")
                     disconnected.add(connection)

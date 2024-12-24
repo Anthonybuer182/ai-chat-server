@@ -41,7 +41,7 @@ async def websocket_endpoint(
         # 获取角色
         character = await get_character_by_id(db, session.character_id)
         if not character:
-            await websocket.close(code=1008, reason="no character")
+            await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="no character")
             return
         
         # 获取消息上下文
@@ -55,7 +55,7 @@ async def websocket_endpoint(
         async def on_word(word):
             logger.info(f"socket:on_word(){word}")
             # 将消息放入广播队列
-            await manager.message_queue.put((text, session_id))
+            await manager.message_queue.put((word, session_id))
 
         async def on_sentence(sentence):
             logger.info(f"socket:on_sentence(){sentence}")

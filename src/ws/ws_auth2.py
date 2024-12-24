@@ -9,12 +9,12 @@ async def get_ws_user(
     token: str = Query(None)
 ) -> UserDB:
     if not token:
-        await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Unauthorized")
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Unauthorized: No token")
         return
     # 验证token获取用户
     try:
-        user = await verify_token(token)
+        user = verify_token(token)
         return user
-    except:
-        await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Unauthorized")
+    except Exception as e:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason=f"Unauthorized: {e.message}")
         return

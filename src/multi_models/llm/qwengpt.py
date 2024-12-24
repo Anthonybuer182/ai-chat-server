@@ -72,9 +72,13 @@ class ChatQWENSession(ChatSession):
             for chunk in response.iter_lines():
                 delta = self._process_stream_chunk(chunk)
                 if delta:
-                    self.on_word(delta)
-                    self._on_llm_sentence(delta)
-                    yield self._handle_stream_content(delta, content)
+                    if self.on_word:
+                        self.on_word(delta)
+                    elif self.on_sentence:
+                        self._on_llm_sentence(delta)
+                    else:
+                        content.append(delta)
+                        yield self._handle_stream_content(delta, content)
 
         # streaming does not currently return token counts
         assistant_message = ChatMessage(

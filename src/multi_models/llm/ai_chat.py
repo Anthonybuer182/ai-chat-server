@@ -87,17 +87,17 @@ class AsyncAIChat(SyncAIChat):
             on_sentence=on_sentence
         )
 
-    def __call__(
+    async def __call__(
         self,
         user_prompt: str,
         stream: bool = False,
         system_prompt: Optional[str] = None,
     ):
         if stream:
-            return self.session.async_generate_stream(
+            return await self.session.async_generate_stream(
                 user_prompt=user_prompt, system_prompt=system_prompt
             )
         else:
-            return self.session.async_generate_text(
+            return await self.session.async_generate_text(
                 user_prompt=user_prompt, system_prompt=system_prompt
             )

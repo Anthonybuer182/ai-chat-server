@@ -74,7 +74,7 @@ async def websocket_endpoint(
                 user_prompt = await websocket.receive_text()
                 logger.info(f"Received message from {session_id}: {user_prompt}")
                 # 生成AI回应
-                text = await ai(user_prompt, stream)
+                await ai(user_prompt, stream)
                 
                 # 保存消息到数据库
                 messageRequest = MessageRequest(

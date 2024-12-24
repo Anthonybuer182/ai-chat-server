@@ -27,11 +27,11 @@ class ChatSession(BaseModel,ABC):
     def sync_generate_text(self, user_prompt: str, system_prompt: Optional[str]):
             pass
     @abstractmethod
-    def async_generate_text(self, user_prompt: str, system_prompt: Optional[str]):
+    async def async_generate_text(self, user_prompt: str, system_prompt: Optional[str]):
             pass
     @abstractmethod
     def sync_generate_stream(self, user_prompt: str, system_prompt: Optional[str]):
             pass
     @abstractmethod
-    def async_generate_stream(self, user_prompt: str, system_prompt: Optional[str]):
+    async def async_generate_stream(self, user_prompt: str, system_prompt: Optional[str]):
             pass

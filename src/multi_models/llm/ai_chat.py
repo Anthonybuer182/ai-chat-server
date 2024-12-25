@@ -20,8 +20,7 @@ class SyncAIChat(BaseModel):
         messages_context: Optional[str] = None,
         recent_messages: List[ChatMessage] = [],
         client: Union[Client, AsyncClient] = sync_client(),
-        on_word: Optional[Union[Callable[[str], None], Callable[[str], Coroutine[Any, Any, None]]]] = None,
-        on_sentence: Optional[Union[Callable[[str], None], Callable[[str], Coroutine[Any, Any, None]]]] = None
+        current_sentence: str = "",
     ):
         super().__init__(session=None)
         if "gpt" in model:
@@ -31,8 +30,6 @@ class SyncAIChat(BaseModel):
                 system_prompt=system_prompt,
                 messages_context=messages_context,
                 recent_messages=recent_messages,
-                on_word=on_word,
-                on_sentence=on_sentence,
             )
         elif "qwen" in model:
             self.session = ChatQWENSession(
@@ -41,8 +38,6 @@ class SyncAIChat(BaseModel):
                 system_prompt=system_prompt,
                 messages_context=messages_context,
                 recent_messages=recent_messages,
-                on_word=on_word,
-                on_sentence=on_sentence,
             )
         else:
             raise ValueError(f"Invalid model: {model}")
@@ -74,8 +69,6 @@ class AsyncAIChat(SyncAIChat):
         system_prompt: Optional[str] = None,
         messages_context: Optional[str] = None,
         recent_messages: List[ChatMessage] = [],
-        on_word: Optional[Union[Callable[[str], None], Callable[[str], Coroutine[Any, Any, None]]]] = None,
-        on_sentence: Optional[Union[Callable[[str], None], Callable[[str], Coroutine[Any, Any, None]]]] = None
     ):
         super().__init__(
             model=model,
@@ -83,8 +76,6 @@ class AsyncAIChat(SyncAIChat):
             messages_context=messages_context,
             recent_messages=recent_messages,
             client=async_client(),
-            on_word=on_word,
-            on_sentence=on_sentence
         )
 
     async def __call__(

@@ -18,9 +18,6 @@ class ChatSession(BaseModel,ABC):
     messages_context: Optional[str] = None # 之前的消息或者聊天话题作为上下文
     new_messages: List[ChatMessage] = []
     recent_messages: List[ChatMessage] = []
-    on_word: Optional[Union[Callable[[str], None], Callable[[str], Coroutine[Any, Any, None]]]] = None
-    on_sentence: Optional[Union[Callable[[str], None], Callable[[str], Coroutine[Any, Any, None]]]] = None
-    current_sentence: str = ""
     class Config:
         arbitrary_types_allowed = True
     @abstractmethod

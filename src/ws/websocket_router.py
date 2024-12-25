@@ -1,3 +1,4 @@
+import re
 from fastapi import APIRouter, Depends, Path, Query, WebSocket, WebSocketDisconnect, status
 from config import MAX_MESSAGE_CONTEXT_LENGTH
 from src.database.postgre.model.character import get_character_by_id
@@ -51,22 +52,12 @@ async def websocket_endpoint(
                 content=message.content,
                 created_at=message.created_at
             ) for message in reversed(messages)]
-        
-        async def on_word(word):
-            logger.info(f"socket:on_word(){word}")
-            # 将消息放入广播队列
-            await manager.message_queue.put((word, session_id))
-
-        async def on_sentence(sentence):
-            logger.info(f"socket:on_sentence(){sentence}")
 
         ai = AsyncAIChat(
             model=model,
             system_prompt=system_prompt or character.system_prompt,
             messages_context=session.messages_context,
             recent_messages=recent_messages,
-            on_word=on_word,
-            on_sentence=on_sentence
         )
         
         while True:
@@ -74,7 +65,14 @@ async def websocket_endpoint(
                 user_prompt = await websocket.receive_text()
                 logger.info(f"Received message from {session_id}: {user_prompt}")
                 # 生成AI回应
-                await ai(user_prompt, stream)
+               
+                async for chunk in ai(user_prompt, stream):
+                    token=chunk["token"]
+                    await manager.message_queue.put(token, session_id)
+                    # sentence += token
+                    # if re.search(r"[。！？.!?]$", sentence):
+                    #     await manager.message_queue.put(sentence, session_id)
+                    #     sentence = ""
                 
                 # 保存消息到数据库
                 messageRequest = MessageRequest(
@@ -87,6 +85,8 @@ async def websocket_endpoint(
                     user_prompt=user_prompt
                 )
                 saved_messages = await create_messages(db, messageRequest, ai.new_messages)
+
+                
                 
             except WebSocketDisconnect:
                 logger.info(f"Client disconnected from session {session_id}")

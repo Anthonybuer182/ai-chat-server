@@ -38,7 +38,7 @@ async def text(request:MessageRequest,user:UserDB = Depends(get_user),db: AsyncS
     if request.stream:
         async def generate():
             async for chunk in ai(request.user_prompt, request.stream):
-                yield chunk["delta"]
+                yield chunk["token"]
         return StreamingResponse(
                 generate(),
                 media_type="text/plain"

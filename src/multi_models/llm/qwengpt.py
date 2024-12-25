@@ -70,15 +70,9 @@ class ChatQWENSession(ChatSession):
         ) as response:
             content = []
             for chunk in response.iter_lines():
-                delta = self._process_stream_chunk(chunk)
-                if delta:
-                    if self.on_word:
-                        self.on_word(delta)
-                    elif self.on_sentence:
-                        self._on_llm_sentence(delta)
-                    else:
-                        content.append(delta)
-                        yield self._handle_stream_content(delta, content)
+                token = self._process_stream_chunk(chunk)
+                if token:
+                    yield self._handle_stream_content(token, content)
 
         # streaming does not currently return token counts
         assistant_message = ChatMessage(
@@ -106,12 +100,9 @@ class ChatQWENSession(ChatSession):
         ) as response:
             content = []
             async for chunk in response.aiter_lines():
-                delta = self._process_stream_chunk(chunk)
-                if delta:
-                    if self.on_word is not None:
-                        self.on_word(delta)
-                    self._on_llm_sentence(delta)
-                    yield self._handle_stream_content(delta, content)
+                token = self._process_stream_chunk(chunk)
+                if token:
+                    yield self._handle_stream_content(token, content)
 
         # streaming does not currently return token counts
         assistant_message = ChatMessage(
@@ -181,21 +172,12 @@ class ChatQWENSession(ChatSession):
             chunk = chunk[6:]  # 去除 "data: " 前缀
             if chunk != "[DONE]":
                 chunk_dict = orjson.loads(chunk)
-                delta = chunk_dict["choices"][0]["delta"].get("content")
-                if delta:
-                    return delta
+                token = chunk_dict["choices"][0]["delta"].get("content")
+                if token:
+                    return token
         return None
-    def _handle_stream_content(self, delta: str, content: list):
+    def _handle_stream_content(self, token: str, content: list):
         """处理拼接后的流数据并生成响应。"""
-        content.append(delta)
-        return {"delta": delta, "response": ''.join(content)}
+        content.append(token)
+        return {"token": token, "content": ''.join(content)}
     
-    def _on_llm_sentence(self, word: str):
-        for char in word:
-            if re.match(r"[,.\?!，。？！\n\r\t]", char):
-                self.current_sentence += char
-                if self.current_sentence.strip() and self.on_sentence is not None:
-                    self.on_sentence(self.current_sentence)
-                    self.current_sentence = ""
-            else:
-                self.current_sentence += char

@@ -37,7 +37,7 @@ async def text(request:MessageRequest,user:UserDB = Depends(get_user),db: AsyncS
     ai = AsyncAIChat(model=request.model,system_prompt=request.system_prompt or character.system_prompt,messages_context=session.messages_context,recent_messages=recent_messages)
     if request.stream:
         async def generate():
-            async for chunk in ai(request.user_prompt, request.stream):
+            async for chunk in await ai(request.user_prompt, request.stream):
                 yield chunk["token"]
         return StreamingResponse(
                 generate(),

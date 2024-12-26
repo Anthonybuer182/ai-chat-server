@@ -85,7 +85,7 @@ class AsyncAIChat(SyncAIChat):
         system_prompt: Optional[str] = None,
     ):
         if stream:
-            return await self.session.async_generate_stream(
+            return self.session.async_generate_stream(
                 user_prompt=user_prompt, system_prompt=system_prompt
             )
         else:

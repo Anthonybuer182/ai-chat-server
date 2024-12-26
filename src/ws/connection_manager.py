@@ -46,7 +46,7 @@ class ConnectionManager:
             for connection in self.active_connections[session_id]:
                 try:
                     if connection.client_state == WebSocketState.CONNECTED:
-                        await connection.send_json(message)
+                        await connection.send_text(message)
                 except Exception as e:
                     logger.error(f"Error broadcasting to client: {e}")
                     disconnected.add(connection)

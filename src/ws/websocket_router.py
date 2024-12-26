@@ -65,14 +65,14 @@ async def websocket_endpoint(
                 user_prompt = await websocket.receive_text()
                 logger.info(f"Received message from {session_id}: {user_prompt}")
                 # 生成AI回应
-               
-                async for chunk in ai(user_prompt, stream):
+                sentence = ""
+                async for chunk in await ai(user_prompt, stream):
                     token=chunk["token"]
-                    await manager.message_queue.put(token, session_id)
-                    # sentence += token
-                    # if re.search(r"[。！？.!?]$", sentence):
-                    #     await manager.message_queue.put(sentence, session_id)
-                    #     sentence = ""
+                    # await manager.message_queue.put((token, session_id))
+                    sentence += token
+                    if re.search(r"[、。，！？.,!?]$", sentence):
+                        await manager.message_queue.put((sentence, session_id))
+                        sentence = ""
                 
                 # 保存消息到数据库
                 messageRequest = MessageRequest(

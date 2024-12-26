@@ -67,13 +67,15 @@ async def websocket_endpoint(
                 # 生成AI回应
                 sentence = ""
                 async for chunk in await ai(user_prompt, stream):
-                    token=chunk["token"]
-                    # await manager.message_queue.put((token, session_id))
-                    sentence += token
-                    if re.search(r"[、。，！？.,!?]$", sentence):
-                        await manager.message_queue.put((sentence, session_id))
-                        sentence = ""
-                
+                    token = chunk["token"]
+                    for char in token:
+                        if re.match(r"[,.\?!，。？！\n\r\t]", char):
+                            sentence += char
+                            if sentence.strip():
+                                await manager.message_queue.put((sentence, session_id))
+                                sentence = ""
+                        else:
+                            sentence += char
                 # 保存消息到数据库
                 messageRequest = MessageRequest(
                     session_id=session_id,

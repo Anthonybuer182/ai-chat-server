@@ -22,17 +22,21 @@ manager = ConnectionManager()
 @websocket_router.websocket("/ws/{session_id}")
 async def websocket_endpoint(
     websocket: WebSocket,
+    token: str = Query(None),
     session_id: str = Path(...),
     model: str = Query(None),
     system_prompt: str = Query(None),
     stream: bool = Query(None),
     platform: str = Query(None),
     language: str = Query(None),
-    user: UserDB = Depends(get_ws_user),
     db: AsyncSession = Depends(get_db)
 ):
     await manager.connect(websocket, session_id)
     try:
+        user = await get_ws_user(token)
+        if not user:
+            await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="token is none or invalid")
+            return
         # 会话验证
         session = await get_session_by_id(db, session_id)
         if not session:

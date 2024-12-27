@@ -20,7 +20,6 @@ class SyncAIChat(BaseModel):
         messages_context: Optional[str] = None,
         recent_messages: List[ChatMessage] = [],
         client: Union[Client, AsyncClient] = sync_client(),
-        current_sentence: str = "",
     ):
         super().__init__(session=None)
         if "gpt" in model:

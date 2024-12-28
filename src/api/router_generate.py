@@ -11,7 +11,7 @@ from src.api.model.user import UserRequest
 from src.api.router_auth2 import  get_user
 from src.api.model.base import success_response,failure_response
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.database.postgre.connection import get_db
+from src.database.postgre.sql import get_db
 from src.multi_models.llm.ai_chat import AsyncAIChat
 from src.multi_models.llm.model.message import ChatMessage
 

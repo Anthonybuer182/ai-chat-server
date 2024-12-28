@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
-from src.database.postgre.connection import get_db
+from src.database.postgre.sql import get_db
 from src.database.postgre.model.session import create_session, delete_session, edit_session, get_session_by_id, get_session_list
 from src.database.postgre.model.user import UserDB
 from src.api.model.base import success_response

@@ -2,7 +2,7 @@
 import asyncio
 from fastapi import FastAPI,HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from src.database.postgre.connection import init_db
+from src.database.postgre.sql import init_db
 from src.api.exceptions import add_exception_handlers
 from src.api.router_config import restful_router
 from sqlalchemy.exc import SQLAlchemyError

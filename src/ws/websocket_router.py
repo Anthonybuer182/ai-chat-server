@@ -11,7 +11,7 @@ from src.util.logger import get_logger
 from src.ws.connection_manager import ConnectionManager
 from src.ws.ws_auth2 import get_ws_user
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.database.postgre.connection import get_db
+from src.database.postgre.sql import get_db
 from src.multi_models.llm.ai_chat import AsyncAIChat
 
 logger = get_logger(__name__)

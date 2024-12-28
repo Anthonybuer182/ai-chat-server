@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from src.database.postgre.connection import get_db
+from src.database.postgre.sql import get_db
 from src.database.postgre.model.message import get_message_list
 from src.database.postgre.model.user import UserDB
 from src.api.model.base import BaseResponse, success_response

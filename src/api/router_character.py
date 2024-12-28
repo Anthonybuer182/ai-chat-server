@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
-from src.database.postgre.connection import get_db
+from src.database.postgre.sql import get_db
 from src.database.postgre.model.character import create_character, delete_character, edit_character, get_character_by_id, get_character_list
 from src.database.postgre.model.user import UserDB
 from src.api.model.character import CharacterListRequest, CharacterRequest

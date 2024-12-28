@@ -12,3 +12,4 @@ alembic==1.11.1           # Database migration tool for managing schema changes 
 python-jose==3.3.0        # Library for creating and verifying JSON Web Tokens (JWT)
 passlib==1.7.4    # Password hashing library with bcrypt support
 bcrypt==3.2.0
+pymilvus==2.5.2

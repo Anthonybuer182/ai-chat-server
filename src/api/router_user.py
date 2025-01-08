@@ -3,17 +3,18 @@ from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
 from src.database.postgre.model.user import UserDB, create_user, delete_user, edit_user, get_user_by_id
 from src.api.model.user import UserRequest
-from src.api.router_auth2 import  get_user
+from src.api.router_auth2 import  create_access_token, get_user
 from src.api.model.base import success_response,failure_response
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.database.postgre.sql import get_db
 
 router = APIRouter()
 
-@router.post("/register")
+@router.post("/signup")
 async def register(request:UserRequest,db: AsyncSession = Depends(get_db)):
     user=await create_user(db, user=request)
-    return success_response(data=jsonable_encoder(user, exclude={"password"}))
+    access_token,expire=create_access_token(user=user)
+    return {"access_token":access_token,"token_type":"bearer","expires_in":expire}
 
 @router.post("/delete/{id}")
 async def delete(id:str,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):

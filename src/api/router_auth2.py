@@ -15,8 +15,6 @@ from src.util.logger import get_logger
 logger = get_logger(__name__)
 router = APIRouter()
 
-router = APIRouter()
-
 @router.post("/token")
 async def token(request: OAuth2PasswordRequestForm = Depends(),db: AsyncSession = Depends(get_db)):
     user = await get_user_by_name(db,request.username)

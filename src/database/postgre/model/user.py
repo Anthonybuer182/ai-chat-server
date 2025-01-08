@@ -11,8 +11,9 @@ class UserDB(BaseDB):
     id = Column(UUID(as_uuid=True),primary_key=True,index=True,nullable=False)
     username = Column(String(256),index=True,unique=True,nullable=False)
     password = Column(String(1024),nullable=False)
-    phone = Column(String(15),index=True,nullable=False) 
-    email = Column(String(256),index=True,nullable=False) 
+    phone = Column(String(15),index=True,nullable=True) 
+    email = Column(String(256),index=True,nullable=True)
+    avatar = Column(String(1024),index=True,nullable=True)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

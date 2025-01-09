@@ -23,5 +23,4 @@ class CharacterRequest(BaseModel):
 
 class CharacterListRequest(PaginationRequest):
     visibility: Optional[bool] = Field(None, description="Visibility status; can be True, False, or None if not specified")
-    user_id: Optional[str] = Field(None, max_length=36, description="User ID with max 36")
 

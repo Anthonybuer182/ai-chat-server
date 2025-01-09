@@ -32,6 +32,10 @@ async def get(id: str,user: UserDB = Depends(get_user),db: AsyncSession = Depend
     return success_response(data=jsonable_encoder(character))
 
 @router.post("/list")
-async def list(request:CharacterListRequest,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
+async def list(request:CharacterListRequest,db: AsyncSession = Depends(get_db)):
     characters=await get_character_list(db,characterList=request)
+    return success_response(data=characters)
+@router.post("/my")
+async def list(request:CharacterListRequest,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
+    characters=await get_character_list(db,user_id=user.id,characterList=request)
     return success_response(data=characters)

@@ -66,13 +66,13 @@ async def get_character_by_id(db: AsyncSession, character_id: str):
         result = await db.execute(select(CharacterDB).filter(CharacterDB.id == character_id))
         return result.scalars().first()
 
-async def get_character_list(db: AsyncSession, characterList: CharacterListRequest) -> PaginationResponse[dict]:
+async def get_character_list(db: AsyncSession, characterList: CharacterListRequest,user_id: str=None) -> PaginationResponse[dict]:
     base_query = select(CharacterDB)
 
     if characterList.visibility is not None:
         base_query = base_query.filter(CharacterDB.visibility == characterList.visibility)
-    if characterList.user_id:
-        base_query = base_query.filter(CharacterDB.user_id == characterList.user_id)
+    if user_id:
+        base_query = base_query.filter(CharacterDB.user_id == user_id)
 
     count_query = base_query.with_only_columns(func.count()).order_by(None)
     total_result = await db.execute(count_query)

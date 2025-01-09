@@ -14,7 +14,7 @@ router = APIRouter()
 async def register(request:UserRequest,db: AsyncSession = Depends(get_db)):
     user=await create_user(db, user=request)
     access_token,expire=create_access_token(user=user)
-    return {"access_token":access_token,"token_type":"bearer","expires_in":expire}
+    return success_response(data={"access_token":access_token,"token_type":"bearer","expires_in":expire})
 
 @router.post("/delete/{id}")
 async def delete(id:str,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):

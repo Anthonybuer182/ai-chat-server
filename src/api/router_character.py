@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
+from src.api.model.pagination import PaginationRequest
 from src.database.postgre.sql import get_db
 from src.database.postgre.model.character import create_character, delete_character, edit_character, get_character_by_id, get_character_list
 from src.database.postgre.model.user import UserDB
@@ -36,6 +37,6 @@ async def list(request:CharacterListRequest,db: AsyncSession = Depends(get_db)):
     characters=await get_character_list(db,characterList=request)
     return success_response(data=characters)
 @router.post("/my")
-async def list(request:CharacterListRequest,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
+async def list(request:PaginationRequest,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
     characters=await get_character_list(db,user_id=user.id,characterList=request)
     return success_response(data=characters)

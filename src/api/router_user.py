@@ -31,5 +31,5 @@ async def edit(request:UserRequest,user: UserDB = Depends(get_user),db: AsyncSes
 @router.get("/get")
 async def get(user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
     user=await get_user_by_id(db, user.id)
-    return success_response(data=jsonable_encoder(user, exclude={"password"}))
+    return success_response(data=jsonable_encoder(user, exclude={"password","id"}))
 

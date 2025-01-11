@@ -69,7 +69,7 @@ async def get_character_by_id(db: AsyncSession, character_id: str):
 async def get_character_list(db: AsyncSession, characterList: CharacterListRequest,user_id: str=None) -> PaginationResponse[dict]:
     base_query = select(CharacterDB)
 
-    if characterList.visibility is not None:
+    if hasattr(characterList, 'visibility') and characterList.visibility:
         base_query = base_query.filter(CharacterDB.visibility == characterList.visibility)
     if user_id:
         base_query = base_query.filter(CharacterDB.user_id == user_id)

@@ -5,7 +5,7 @@ from src.api.model.pagination import PaginationRequest
 class CharacterRequest(BaseModel):
     id: Optional[str] = Field(None, max_length=36, description="Character ID (optional)")
     name: str = Field(..., description="Character name cannot be empty")  # 必填字段
-    background: str = Field(..., description="Character background or story (optional)")
+    background: Optional[str] = Field(..., description="Character background or story (optional)")
     portrait: Optional[str] = Field(None, description="URL of the character portrait (optional)")
     voice_id: Optional[str] = Field(None, description="Voice ID for TTS (optional)")
     system_prompt: Optional[str] = Field(None, description="System prompt text (optional)")

@@ -5,12 +5,12 @@ from src.api.model.pagination import PaginationRequest
 class CharacterRequest(BaseModel):
     id: Optional[str] = Field(None, max_length=36, description="Character ID (optional)")
     name: str = Field(..., description="Character name cannot be empty")  # 必填字段
-    background: Optional[str] = Field(..., description="Character background or story (optional)")
+    background: Optional[str] = Field(None, description="Character background or story (optional)")
     portrait: Optional[str] = Field(None, description="URL of the character portrait (optional)")
     voice_id: Optional[str] = Field(None, description="Voice ID for TTS (optional)")
     system_prompt: Optional[str] = Field(None, description="System prompt text (optional)")
     tts: Optional[str] = Field(None, description="Text-to-speech configuration (optional)")
-    visibility: bool = Field(..., description="Visibility status cannot be empty")  # 必填字段
+    visibility: Optional[bool] = Field(None, description="Visibility status cannot be empty")  # 必填字段
     data: Optional[Dict] = Field(None, description="Additional character data (optional)")
     likes: Optional[int] = Field(None, ge=0, description="Number of likes (optional, non-negative)")
 

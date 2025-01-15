@@ -1,8 +1,8 @@
-"""create tables
+"""create
 
-Revision ID: 841814b4ea87
+Revision ID: a5974068e223
 Revises: 
-Create Date: 2024-12-23 10:02:00.522785
+Create Date: 2025-01-15 14:20:51.164774
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '841814b4ea87'
+revision = 'a5974068e223'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,13 +22,15 @@ def upgrade() -> None:
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('username', sa.String(length=256), nullable=False),
     sa.Column('password', sa.String(length=1024), nullable=False),
-    sa.Column('phone', sa.String(length=15), nullable=False),
-    sa.Column('email', sa.String(length=256), nullable=False),
+    sa.Column('phone', sa.String(length=15), nullable=True),
+    sa.Column('email', sa.String(length=256), nullable=True),
+    sa.Column('avatar', sa.String(length=1024), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('is_deleted', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_users_avatar'), 'users', ['avatar'], unique=False)
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=False)
     op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
     op.create_index(op.f('ix_users_phone'), 'users', ['phone'], unique=False)
@@ -37,22 +39,30 @@ def upgrade() -> None:
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('user_id', sa.UUID(), nullable=False),
     sa.Column('name', sa.String(length=256), nullable=False),
-    sa.Column('background', sa.String(length=1024), nullable=True),
-    sa.Column('portrait', sa.String(length=256), nullable=True),
-    sa.Column('voice_id', sa.String(length=15), nullable=True),
+    sa.Column('sex', sa.String(length=256), nullable=True),
+    sa.Column('age', sa.Integer(), nullable=True),
+    sa.Column('job', sa.String(length=256), nullable=True),
+    sa.Column('hobby', sa.String(length=256), nullable=True),
     sa.Column('system_prompt', sa.String(length=1024), nullable=False),
-    sa.Column('tts', sa.String(length=256), nullable=False),
-    sa.Column('visibility', sa.Boolean(), nullable=False),
-    sa.Column('data', sa.JSON(), nullable=True),
+    sa.Column('voice', sa.String(length=15), nullable=True),
+    sa.Column('avatars', sa.JSON(), nullable=True),
+    sa.Column('topics', sa.JSON(), nullable=True),
     sa.Column('likes', sa.Integer(), nullable=False),
+    sa.Column('visibility', sa.Boolean(), nullable=False),
+    sa.Column('tts', sa.String(length=256), nullable=False),
+    sa.Column('data', sa.JSON(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('is_deleted', sa.Boolean(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_characters_age'), 'characters', ['age'], unique=False)
+    op.create_index(op.f('ix_characters_hobby'), 'characters', ['hobby'], unique=False)
     op.create_index(op.f('ix_characters_id'), 'characters', ['id'], unique=False)
+    op.create_index(op.f('ix_characters_job'), 'characters', ['job'], unique=False)
     op.create_index(op.f('ix_characters_name'), 'characters', ['name'], unique=True)
+    op.create_index(op.f('ix_characters_sex'), 'characters', ['sex'], unique=False)
     op.create_index(op.f('ix_characters_system_prompt'), 'characters', ['system_prompt'], unique=False)
     op.create_index(op.f('ix_characters_user_id'), 'characters', ['user_id'], unique=False)
     op.create_index(op.f('ix_characters_visibility'), 'characters', ['visibility'], unique=False)
@@ -127,12 +137,17 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_characters_visibility'), table_name='characters')
     op.drop_index(op.f('ix_characters_user_id'), table_name='characters')
     op.drop_index(op.f('ix_characters_system_prompt'), table_name='characters')
+    op.drop_index(op.f('ix_characters_sex'), table_name='characters')
     op.drop_index(op.f('ix_characters_name'), table_name='characters')
+    op.drop_index(op.f('ix_characters_job'), table_name='characters')
     op.drop_index(op.f('ix_characters_id'), table_name='characters')
+    op.drop_index(op.f('ix_characters_hobby'), table_name='characters')
+    op.drop_index(op.f('ix_characters_age'), table_name='characters')
     op.drop_table('characters')
     op.drop_index(op.f('ix_users_username'), table_name='users')
     op.drop_index(op.f('ix_users_phone'), table_name='users')
     op.drop_index(op.f('ix_users_id'), table_name='users')
     op.drop_index(op.f('ix_users_email'), table_name='users')
+    op.drop_index(op.f('ix_users_avatar'), table_name='users')
     op.drop_table('users')
     # ### end Alembic commands ###

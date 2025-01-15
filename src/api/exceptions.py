@@ -23,8 +23,9 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
         status_code=422,
-        content={"code": 422, "message": "Validation Error", "data": exc.errors()},
+        content={"code": 422, "message": "Validation Error", "data": exc.errors(), "body": exc.body},
     )
+
 def add_exception_handlers(app: FastAPI):
     app.add_exception_handler(StarletteHTTPException, http_exception_handler)
     app.add_exception_handler(RequestValidationError, validation_exception_handler)

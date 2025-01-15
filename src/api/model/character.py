@@ -1,18 +1,26 @@
-from typing import Dict, Optional
+from pydoc_data import topics
+from typing import Dict, List, Optional
 from pydantic import BaseModel, Field, field_validator
 from src.api.model.pagination import PaginationRequest
 
 class CharacterRequest(BaseModel):
-    id: Optional[str] = Field(None, max_length=36, description="Character ID (optional)")
-    name: str = Field(..., description="Character name cannot be empty")  # 必填字段
-    background: Optional[str] = Field(None, description="Character background or story (optional)")
-    portrait: Optional[str] = Field(None, description="URL of the character portrait (optional)")
-    voice_id: Optional[str] = Field(None, description="Voice ID for TTS (optional)")
-    system_prompt: Optional[str] = Field(None, description="System prompt text (optional)")
-    tts: Optional[str] = Field(None, description="Text-to-speech configuration (optional)")
-    visibility: Optional[bool] = Field(None, description="Visibility status cannot be empty")  # 必填字段
-    data: Optional[Dict] = Field(None, description="Additional character data (optional)")
-    likes: Optional[int] = Field(None, ge=0, description="Number of likes (optional, non-negative)")
+    id: Optional[str] = None
+    name: str
+    sex: Optional[str] = None
+    age: Optional[int] = None
+    job: Optional[str] = None
+    hobby: Optional[str] = None
+    system_prompt: Optional[str]= None
+    voice: Optional[str] = None
+    style: Optional[str] = None
+    avatars: Optional[List[str]] = None
+    topics: Optional[List[str]] = None
+    likes: Optional[int] = None
+    visibility: Optional[bool] = True
+    # background: Optional[str] = Field(None, description="Character background or story (optional)")
+    tts: Optional[str] = None
+    data: Optional[Dict] = None
+
 
     @field_validator("name")
     def validate_non_empty(cls, value, field):

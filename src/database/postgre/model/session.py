@@ -19,7 +19,7 @@ class SessionDB(BaseDB):
     user_name = Column(String(64), index=True, nullable=False, doc="用户名称")
     character_id = Column(UUID(as_uuid=True), ForeignKey("characters.id", ondelete="CASCADE"), index=True, nullable=False, doc="角色ID")
     character_name = Column(String(64), index=True, nullable=False, doc="角色名称")
-    character_portrait = Column(String(256), nullable=True, doc="角色头像")
+    character_avatar = Column(String(256), nullable=True, doc="角色头像")
     new_message = Column(Text, nullable=False, doc="最新消息")
     messages_context = Column(JSON, nullable=False, doc="历史消息上下文（JSON 格式）")
 

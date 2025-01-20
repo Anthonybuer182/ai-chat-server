@@ -18,6 +18,5 @@ class SessionRequest(BaseModel):
         return value
 
 class SessionListRequest(PaginationRequest):
-    user_id : Optional[str] = Field(None, max_length=36, description="User ID with max 36")
     character_id: Optional[str] = Field(None, max_length=36, description="Caracter ID with max 36")
 

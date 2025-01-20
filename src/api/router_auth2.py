@@ -8,8 +8,9 @@ from typing import Optional
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from config import SECRET_KEY
-from src.database.postgre.sql import get_db
-from src.database.postgre.model.user import  UserDB,get_user_by_name,verify_password
+from src.database.postgre._sql import get_db
+from src.database.postgre.model.user import UserDB
+from src.database.postgre.user_sql import get_user_by_name, verify_password
 from src.util.logger import get_logger
 
 logger = get_logger(__name__)

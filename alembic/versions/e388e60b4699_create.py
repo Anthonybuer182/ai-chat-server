@@ -1,8 +1,8 @@
 """create
 
-Revision ID: a5974068e223
+Revision ID: e388e60b4699
 Revises: 
-Create Date: 2025-01-15 14:20:51.164774
+Create Date: 2025-01-20 10:41:33.836279
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = 'a5974068e223'
+revision = 'e388e60b4699'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -43,13 +43,14 @@ def upgrade() -> None:
     sa.Column('age', sa.Integer(), nullable=True),
     sa.Column('job', sa.String(length=256), nullable=True),
     sa.Column('hobby', sa.String(length=256), nullable=True),
-    sa.Column('system_prompt', sa.String(length=1024), nullable=False),
+    sa.Column('system_prompt', sa.String(length=1024), nullable=True),
     sa.Column('voice', sa.String(length=15), nullable=True),
+    sa.Column('style', sa.String(length=15), nullable=True),
     sa.Column('avatars', sa.JSON(), nullable=True),
     sa.Column('topics', sa.JSON(), nullable=True),
-    sa.Column('likes', sa.Integer(), nullable=False),
-    sa.Column('visibility', sa.Boolean(), nullable=False),
-    sa.Column('tts', sa.String(length=256), nullable=False),
+    sa.Column('likes', sa.Integer(), nullable=True),
+    sa.Column('visibility', sa.Boolean(), nullable=True),
+    sa.Column('tts', sa.String(length=256), nullable=True),
     sa.Column('data', sa.JSON(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
@@ -61,6 +62,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_characters_hobby'), 'characters', ['hobby'], unique=False)
     op.create_index(op.f('ix_characters_id'), 'characters', ['id'], unique=False)
     op.create_index(op.f('ix_characters_job'), 'characters', ['job'], unique=False)
+    op.create_index(op.f('ix_characters_likes'), 'characters', ['likes'], unique=False)
     op.create_index(op.f('ix_characters_name'), 'characters', ['name'], unique=True)
     op.create_index(op.f('ix_characters_sex'), 'characters', ['sex'], unique=False)
     op.create_index(op.f('ix_characters_system_prompt'), 'characters', ['system_prompt'], unique=False)
@@ -71,8 +73,6 @@ def upgrade() -> None:
     sa.Column('user_id', sa.UUID(), nullable=False),
     sa.Column('user_name', sa.String(length=64), nullable=False),
     sa.Column('character_id', sa.UUID(), nullable=False),
-    sa.Column('character_name', sa.String(length=64), nullable=False),
-    sa.Column('character_portrait', sa.String(length=256), nullable=True),
     sa.Column('new_message', sa.Text(), nullable=False),
     sa.Column('messages_context', sa.JSON(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
@@ -83,7 +83,6 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_sessions_character_id'), 'sessions', ['character_id'], unique=False)
-    op.create_index(op.f('ix_sessions_character_name'), 'sessions', ['character_name'], unique=False)
     op.create_index(op.f('ix_sessions_id'), 'sessions', ['id'], unique=False)
     op.create_index(op.f('ix_sessions_user_id'), 'sessions', ['user_id'], unique=False)
     op.create_index(op.f('ix_sessions_user_name'), 'sessions', ['user_name'], unique=False)
@@ -131,7 +130,6 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_sessions_user_name'), table_name='sessions')
     op.drop_index(op.f('ix_sessions_user_id'), table_name='sessions')
     op.drop_index(op.f('ix_sessions_id'), table_name='sessions')
-    op.drop_index(op.f('ix_sessions_character_name'), table_name='sessions')
     op.drop_index(op.f('ix_sessions_character_id'), table_name='sessions')
     op.drop_table('sessions')
     op.drop_index(op.f('ix_characters_visibility'), table_name='characters')
@@ -139,6 +137,7 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_characters_system_prompt'), table_name='characters')
     op.drop_index(op.f('ix_characters_sex'), table_name='characters')
     op.drop_index(op.f('ix_characters_name'), table_name='characters')
+    op.drop_index(op.f('ix_characters_likes'), table_name='characters')
     op.drop_index(op.f('ix_characters_job'), table_name='characters')
     op.drop_index(op.f('ix_characters_id'), table_name='characters')
     op.drop_index(op.f('ix_characters_hobby'), table_name='characters')

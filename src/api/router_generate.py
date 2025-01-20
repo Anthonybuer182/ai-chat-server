@@ -2,16 +2,16 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from config import MAX_MESSAGE_CONTEXT_LENGTH
-from src.database.postgre.model.character import get_character_by_id
-from src.database.postgre.model.message import create_messages, get_message_limit
-from src.database.postgre.model.session import get_session_by_id
+from src.database.postgre.character_sql import get_character_by_id
+from src.database.postgre.message_sql import create_messages, get_message_limit
+from src.database.postgre.session_sql import get_session_by_id
 from src.database.postgre.model.user import UserDB
 from src.api.model.message import  MessageRequest
 from src.api.model.user import UserRequest
 from src.api.router_auth2 import  get_user
 from src.api.model.base import success_response,failure_response
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.database.postgre.sql import get_db
+from src.database.postgre._sql import get_db
 from src.multi_models.llm.ai_chat import AsyncAIChat
 from src.multi_models.llm.model.message import ChatMessage
 

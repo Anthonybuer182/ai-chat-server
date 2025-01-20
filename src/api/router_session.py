@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
-from src.database.postgre.sql import get_db
-from src.database.postgre.model.session import create_session, delete_session, edit_session, get_session_by_id, get_session_list
+from src.database.postgre._sql import get_db
+from src.database.postgre.session_sql import create_session, delete_session, edit_session, get_session_by_id, get_session_list
 from src.database.postgre.model.user import UserDB
 from src.api.model.base import success_response
 from src.api.model.session import SessionListRequest, SessionRequest
@@ -33,5 +33,5 @@ async def get(id: str,user: UserDB = Depends(get_user),db: AsyncSession = Depend
 
 @router.post("/list")
 async def list(request:SessionListRequest,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
-    sessions = await get_session_list(db=db,sessionList=request)
+    sessions = await get_session_list(db=db,user_id=user.id,sessionList=request)
     return success_response(data=sessions)

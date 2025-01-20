@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from fastapi.encoders import jsonable_encoder
 from src.api.model.pagination import PaginationRequest
-from src.database.postgre.sql import get_db
-from src.database.postgre.model.character import create_character, delete_character, edit_character, get_character_by_id, get_character_list
+from src.database.postgre._sql import get_db
+from src.database.postgre.character_sql import create_character, delete_character, edit_character, get_character_by_id, get_character_list
 from src.database.postgre.model.user import UserDB
 from src.api.model.character import CharacterListRequest, CharacterRequest
 from src.api.model.base import  failure_response, success_response

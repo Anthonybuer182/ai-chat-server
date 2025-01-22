@@ -1,8 +1,8 @@
 """create
 
-Revision ID: e388e60b4699
+Revision ID: 7ce56aada749
 Revises: 
-Create Date: 2025-01-20 10:41:33.836279
+Create Date: 2025-01-22 21:41:45.142784
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = 'e388e60b4699'
+revision = '7ce56aada749'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -73,8 +73,8 @@ def upgrade() -> None:
     sa.Column('user_id', sa.UUID(), nullable=False),
     sa.Column('user_name', sa.String(length=64), nullable=False),
     sa.Column('character_id', sa.UUID(), nullable=False),
-    sa.Column('new_message', sa.Text(), nullable=False),
-    sa.Column('messages_context', sa.JSON(), nullable=False),
+    sa.Column('new_message', sa.Text(), nullable=True),
+    sa.Column('messages_context', sa.JSON(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('is_deleted', sa.Boolean(), nullable=False),
@@ -90,7 +90,7 @@ def upgrade() -> None:
     op.create_table('messages',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('session_id', sa.UUID(), nullable=False),
-    sa.Column('platform', postgresql.ENUM('Web', 'Android', 'Ios', 'MiniProgram', name='platform_enum'), nullable=False),
+    sa.Column('platform', postgresql.ENUM('web', 'android', 'ios', 'MiniProgram', name='platform_enum'), nullable=False),
     sa.Column('language', sa.String(length=8), nullable=False),
     sa.Column('model', sa.String(length=32), nullable=False),
     sa.Column('request_id', sa.String(length=48), nullable=True),

@@ -8,7 +8,7 @@ class MessageDB(BaseDB):
 
     id = Column(UUID(as_uuid=True), primary_key=True, index=True, nullable=False, doc="消息唯一标识符")
     session_id = Column(UUID(as_uuid=True), ForeignKey("sessions.id", ondelete="CASCADE"), index=True, nullable=False, doc="关联会话ID")
-    platform = Column(ENUM("Web", "Android", "Ios", "MiniProgram", name="platform_enum"), index=True, nullable=False, doc="客户端平台")
+    platform = Column(ENUM("web", "android", "ios", "MiniProgram", name="platform_enum"), index=True, nullable=False, doc="客户端平台")
     language = Column(String(8), index=True, nullable=False, default="en", doc="聊天消息的语言（ISO 639-1 代码）")
     model = Column(String(32), index=True, nullable=False, doc="模型名称")
     request_id = Column(String(48), index=True, nullable=True, doc="API 请求 ID")

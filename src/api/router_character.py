@@ -29,7 +29,7 @@ async def edit(request:CharacterRequest,user: UserDB = Depends(get_user),db: Asy
 
 @router.get("/get/{id}")
 async def get(id: str,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
-    character=await get_character_by_id(db,id)
+    character=await get_character_by_id(db,user.id,id)
     return success_response(data=jsonable_encoder(character))
 
 @router.post("/list")

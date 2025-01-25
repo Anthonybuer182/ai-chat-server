@@ -50,100 +50,36 @@ async def get_character_by_name(db: AsyncSession, character_name: str):
         return result.scalars().first()
     
     
-async def get_character_by_id(db: AsyncSession, user_id: str, character_id: str):
-    # 创建 sessions 表的别名
-    SessionAlias = aliased(SessionDB)
+async def get_character_by_id(db: AsyncSession, character_id: str):
+    async with db.begin():
+        result = await db.execute(select(CharacterDB).filter(CharacterDB.id == character_id))
+        return result.scalars().first()
 
-    # 基础查询，使用 LEFT JOIN 关联 characters 表和 sessions 表
-    query = select(
-        CharacterDB,  # 选择 characters 表的所有字段
-        SessionAlias.id.label("session_id")  # 选择 sessions 表的 id 字段
-    ).join(
-        SessionAlias,
-        and_(
-            CharacterDB.id == SessionAlias.character_id,
-            CharacterDB.user_id == SessionAlias.user_id
-        ),
-        isouter=True  # 使用 LEFT JOIN
-    ).filter(
-        CharacterDB.user_id == user_id,
-        CharacterDB.id == character_id
-    )
+async def get_character_list(db: AsyncSession, characterList: CharacterListRequest,user_id: str=None) -> PaginationResponse[dict]:
+    base_query = select(CharacterDB)
 
-    # 执行查询
-    result = await db.execute(query)
-    record = result.first()  # 获取第一条记录
-
-    if not record:
-        return None
-
-    # 将查询结果转换为字典
-    character_data = record[0].__dict__  # characters 表的数据
-    session_data = {
-        "session_id": record.session_id if record.session_id else None  # sessions 表的数据，如果没有则为 None
-    }
-    character_data.update(session_data)  # 合并 characters 和 sessions 的数据
-    character_data.pop('_sa_instance_state', None)  # 移除 SQLAlchemy 的内部状态
-
-    return character_data
-
-from sqlalchemy.orm import aliased
-from sqlalchemy import select, and_, func
-from math import ceil
-
-async def get_character_list(db: AsyncSession, characterList: CharacterListRequest, user_id: str = None) -> PaginationResponse[dict]:
-    # 创建 sessions 表的别名
-    SessionAlias = aliased(SessionDB)
-
-    # 基础查询，使用 LEFT JOIN 关联 characters 表和 sessions 表
-    base_query = select(
-        CharacterDB,  # 选择 characters 表的所有字段
-        SessionAlias.id.label("session_id")  # 选择 sessions 表的 id 字段
-    ).join(
-        SessionAlias,
-        and_(
-            CharacterDB.id == SessionAlias.character_id,
-            CharacterDB.user_id == SessionAlias.user_id
-        ),
-        isouter=True  # 使用 LEFT JOIN
-    )
-
-    # 根据 visibility 过滤
     if hasattr(characterList, 'visibility') and characterList.visibility:
         base_query = base_query.filter(CharacterDB.visibility == characterList.visibility)
-
-    # 根据 user_id 过滤
     if user_id:
         base_query = base_query.filter(CharacterDB.user_id == user_id)
 
-    # 计算总数
     count_query = base_query.with_only_columns(func.count()).order_by(None)
     total_result = await db.execute(count_query)
     total = total_result.scalar()
 
-    # 分页
     offset = (characterList.page - 1) * characterList.page_size
     paginated_query = base_query.offset(offset).limit(characterList.page_size)
 
-    # 执行查询
     result = await db.execute(paginated_query)
-    records = result.all()  # 获取所有记录
+    records = result.scalars().all()
 
-    # 计算总页数
     total_pages = ceil(total / characterList.page_size) if total > 0 else 0
 
-    # 将查询结果转换为字典
-    response_records = []
-    for record in records:
-        character_data = record[0].__dict__  # characters 表的数据
-        session_data = {
-            "session_id": record.session_id if record.session_id else None  # sessions 表的数据，如果没有则为 None
-        }
-        character_data.update(session_data)  # 合并 characters 和 sessions 的数据
-        character_data.pop('_sa_instance_state', None)  # 移除 SQLAlchemy 的内部状态
-        response_records.append(character_data)
+    response_records = [record.__dict__ for record in records]
+    
+    for record in response_records:
+        record.pop('_sa_instance_state', None)
 
-    # 返回分页响应
     return PaginationResponse[dict](
         total=total,
         total_pages=total_pages,
@@ -151,4 +87,8 @@ async def get_character_list(db: AsyncSession, characterList: CharacterListReque
         page_size=characterList.page_size,
         records=response_records,
     )
+
+
+
+
 

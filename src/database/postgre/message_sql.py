@@ -17,11 +17,12 @@ async def create_message(db: AsyncSession, message: MessageRequest):
     await db.refresh(db_message)
     return db_message
 
-async def create_messages(db: AsyncSession, message: MessageRequest, new_messages: List[ChatMessage]):
+async def create_messages(db: AsyncSession,user_id:str, message: MessageRequest, new_messages: List[ChatMessage]):
     db_messages = [
         MessageDB(
             id=uuid4(),
-            session_id=message.session_id,
+            user_id=user_id,
+            character_id=message.character_id,
             platform=message.platform,
             language=message.language,
             model=message.model,
@@ -51,7 +52,7 @@ async def edit_message(db: AsyncSession, message: MessageRequest):
 
         if not db_message:
             return None  
-        message_data = message.model_dump(exclude={"id", "session_id"})
+        message_data = message.model_dump(exclude={"id", "user_id", "character_id"})
         for key, value in message_data.items():
             if hasattr(db_message, key) and value is not None and value != "":
                 setattr(db_message, key, value)
@@ -63,11 +64,13 @@ async def get_message_by_id(db: AsyncSession, message_id: str):
         result = await db.execute(select(MessageDB).filter(MessageDB.id == message_id))
         return result.scalars().first()
 
-async def get_message_list(db: AsyncSession, messageList: MessageListRequest) -> PaginationResponse[dict]:
+async def get_message_list(db: AsyncSession,user_id: str, messageList: MessageListRequest) -> PaginationResponse[dict]:
     base_query = select(MessageDB)
 
-    if messageList.session_id is not None:
-        base_query = base_query.filter(MessageDB.session_id == messageList.session_id)
+    if messageList.character_id is not None:
+        base_query = base_query.filter(MessageDB.character_id == messageList.character_id)
+    if user_id is not None:
+        base_query = base_query.filter(MessageDB.user_id == user_id)
 
     count_query = base_query.with_only_columns(func.count()).order_by(None)
     total_result = await db.execute(count_query)
@@ -94,8 +97,8 @@ async def get_message_list(db: AsyncSession, messageList: MessageListRequest) ->
         records=response_records,
     )
 
-async def get_message_limit(db: AsyncSession, session_id: str, limit: int):
-    base_query = select(MessageDB).filter(MessageDB.session_id == session_id).order_by(MessageDB.created_at.desc())
+async def get_message_limit(db: AsyncSession,user_id: str, character_id: str, limit: int):
+    base_query = select(MessageDB).filter(MessageDB.user_id == user_id,MessageDB.character_id == character_id).order_by(MessageDB.created_at.desc())
     paginated_query = base_query.limit(limit)
     result = await db.execute(paginated_query)
     records = result.scalars().all()

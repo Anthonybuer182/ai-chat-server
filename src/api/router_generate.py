@@ -19,16 +19,17 @@ router = APIRouter()
 
 @router.post("/text")
 async def text(request:MessageRequest,user:UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
-    session = await get_session_by_id(db,request.session_id)
+    session = await get_session_by_id(db, user_id=user.id, character_id=request.character_id)
     if not session:
-        return failure_response(message="session not found")
-    character = await get_character_by_id(db,session.character_id)
+        return failure_response(message="session not found")  
+    
+    character = await get_character_by_id(db,request.character_id)
     if not character:
         return failure_response(message="character not found")
     
     # 获取向量数据库的话题上下文
 
-    messages = await get_message_limit(db,session_id=request.session_id,limit=MAX_MESSAGE_CONTEXT_LENGTH)
+    messages = await get_message_limit(db,user_id=user.id,character_id=request.character_id,limit=MAX_MESSAGE_CONTEXT_LENGTH)
     recent_messages = [ChatMessage(
             role=message.role,
             content=message.content,
@@ -45,7 +46,7 @@ async def text(request:MessageRequest,user:UserDB = Depends(get_user),db: AsyncS
             )
     else:
          text = await ai(request.user_prompt,request.stream)
-    saved_messages = await create_messages(db, request, ai.new_messages)
+    saved_messages = await create_messages(db,user.id, request, ai.new_messages)
     if not saved_messages:
         return failure_response(message="failed to save messages")
     return success_response(data=text)

@@ -12,5 +12,5 @@ from sqlalchemy.ext.asyncio import AsyncSession
 router = APIRouter()
 @router.post("/list")
 async def list(request:MessageListRequest,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
-    messages = await get_message_list(db,request)
+    messages = await get_message_list(db,user.id,request)
     return success_response(data=messages)

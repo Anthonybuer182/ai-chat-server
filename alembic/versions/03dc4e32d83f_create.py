@@ -1,8 +1,8 @@
 """create
 
-Revision ID: 7ce56aada749
+Revision ID: 03dc4e32d83f
 Revises: 
-Create Date: 2025-01-22 21:41:45.142784
+Create Date: 2025-01-25 21:06:04.406679
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '7ce56aada749'
+revision = '03dc4e32d83f'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -68,29 +68,11 @@ def upgrade() -> None:
     op.create_index(op.f('ix_characters_system_prompt'), 'characters', ['system_prompt'], unique=False)
     op.create_index(op.f('ix_characters_user_id'), 'characters', ['user_id'], unique=False)
     op.create_index(op.f('ix_characters_visibility'), 'characters', ['visibility'], unique=False)
-    op.create_table('sessions',
-    sa.Column('id', sa.UUID(), nullable=False),
-    sa.Column('user_id', sa.UUID(), nullable=False),
-    sa.Column('user_name', sa.String(length=64), nullable=False),
-    sa.Column('character_id', sa.UUID(), nullable=False),
-    sa.Column('new_message', sa.Text(), nullable=True),
-    sa.Column('messages_context', sa.JSON(), nullable=True),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('is_deleted', sa.Boolean(), nullable=False),
-    sa.ForeignKeyConstraint(['character_id'], ['characters.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_sessions_character_id'), 'sessions', ['character_id'], unique=False)
-    op.create_index(op.f('ix_sessions_id'), 'sessions', ['id'], unique=False)
-    op.create_index(op.f('ix_sessions_user_id'), 'sessions', ['user_id'], unique=False)
-    op.create_index(op.f('ix_sessions_user_name'), 'sessions', ['user_name'], unique=False)
-    op.create_index('ix_user_character', 'sessions', ['user_id', 'character_id'], unique=False)
     op.create_table('messages',
     sa.Column('id', sa.UUID(), nullable=False),
-    sa.Column('session_id', sa.UUID(), nullable=False),
-    sa.Column('platform', postgresql.ENUM('web', 'android', 'ios', 'MiniProgram', name='platform_enum'), nullable=False),
+    sa.Column('user_id', sa.UUID(), nullable=False),
+    sa.Column('character_id', sa.UUID(), nullable=False),
+    sa.Column('platform', postgresql.ENUM('web', 'android', 'ios', 'wechat', name='platform_enum'), nullable=False),
     sa.Column('language', sa.String(length=8), nullable=False),
     sa.Column('model', sa.String(length=32), nullable=False),
     sa.Column('request_id', sa.String(length=48), nullable=True),
@@ -103,35 +85,52 @@ def upgrade() -> None:
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('is_deleted', sa.Boolean(), nullable=False),
-    sa.ForeignKeyConstraint(['session_id'], ['sessions.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['character_id'], ['characters.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index('idx_language', 'messages', ['language'], unique=False)
+    op.create_index('idx_model', 'messages', ['model'], unique=False)
+    op.create_index('idx_platform', 'messages', ['platform'], unique=False)
+    op.create_index('idx_user_character', 'messages', ['user_id', 'character_id'], unique=False)
     op.create_index(op.f('ix_messages_id'), 'messages', ['id'], unique=False)
-    op.create_index(op.f('ix_messages_language'), 'messages', ['language'], unique=False)
-    op.create_index(op.f('ix_messages_model'), 'messages', ['model'], unique=False)
-    op.create_index(op.f('ix_messages_platform'), 'messages', ['platform'], unique=False)
     op.create_index(op.f('ix_messages_request_id'), 'messages', ['request_id'], unique=False)
-    op.create_index(op.f('ix_messages_session_id'), 'messages', ['session_id'], unique=False)
-    op.create_index('ix_session_platform', 'messages', ['session_id', 'platform'], unique=False)
+    op.create_table('sessions',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('user_id', sa.UUID(), nullable=False),
+    sa.Column('character_id', sa.UUID(), nullable=False),
+    sa.Column('character_name', sa.String(length=64), nullable=False),
+    sa.Column('character_avatar', sa.String(length=256), nullable=True),
+    sa.Column('new_message', sa.Text(), nullable=True),
+    sa.Column('messages_context', sa.JSON(), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('is_deleted', sa.Boolean(), nullable=False),
+    sa.ForeignKeyConstraint(['character_id'], ['characters.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_sessions_character_id'), 'sessions', ['character_id'], unique=False)
+    op.create_index(op.f('ix_sessions_character_name'), 'sessions', ['character_name'], unique=False)
+    op.create_index(op.f('ix_sessions_user_id'), 'sessions', ['user_id'], unique=False)
+    op.create_index('ix_user_character', 'sessions', ['user_id', 'character_id'], unique=False)
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
-    op.drop_index('ix_session_platform', table_name='messages')
-    op.drop_index(op.f('ix_messages_session_id'), table_name='messages')
-    op.drop_index(op.f('ix_messages_request_id'), table_name='messages')
-    op.drop_index(op.f('ix_messages_platform'), table_name='messages')
-    op.drop_index(op.f('ix_messages_model'), table_name='messages')
-    op.drop_index(op.f('ix_messages_language'), table_name='messages')
-    op.drop_index(op.f('ix_messages_id'), table_name='messages')
-    op.drop_table('messages')
     op.drop_index('ix_user_character', table_name='sessions')
-    op.drop_index(op.f('ix_sessions_user_name'), table_name='sessions')
     op.drop_index(op.f('ix_sessions_user_id'), table_name='sessions')
-    op.drop_index(op.f('ix_sessions_id'), table_name='sessions')
+    op.drop_index(op.f('ix_sessions_character_name'), table_name='sessions')
     op.drop_index(op.f('ix_sessions_character_id'), table_name='sessions')
     op.drop_table('sessions')
+    op.drop_index(op.f('ix_messages_request_id'), table_name='messages')
+    op.drop_index(op.f('ix_messages_id'), table_name='messages')
+    op.drop_index('idx_user_character', table_name='messages')
+    op.drop_index('idx_platform', table_name='messages')
+    op.drop_index('idx_model', table_name='messages')
+    op.drop_index('idx_language', table_name='messages')
+    op.drop_table('messages')
     op.drop_index(op.f('ix_characters_visibility'), table_name='characters')
     op.drop_index(op.f('ix_characters_user_id'), table_name='characters')
     op.drop_index(op.f('ix_characters_system_prompt'), table_name='characters')

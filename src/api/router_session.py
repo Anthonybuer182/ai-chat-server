@@ -16,9 +16,9 @@ async def create(request:SessionRequest,user: UserDB = Depends(get_user),db: Asy
     session = await create_session(db=db,user=user,session=request)
     return success_response(data=jsonable_encoder(session))
 
-@router.post("/delete/{id}")
-async def delete(id:str,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
-    result = await delete_session(db=db,user_id=user.id,session_id=id)
+@router.post("/delete/{character_id}")
+async def delete(character_id:str,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
+    result = await delete_session(db=db,user_id=user.id,character_id=character_id)
     return success_response(data=result)
 
 @router.post("/edit")
@@ -26,9 +26,9 @@ async def edit(request:SessionRequest,user: UserDB = Depends(get_user),db: Async
     session = await edit_session(db=db,user=user,session=request)
     return success_response(data=jsonable_encoder(session))
 
-@router.get("/get/{id}")
-async def get(id: str,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
-    session=await get_session_by_id(db,id)
+@router.get("/get/{character_id}")
+async def get(character_id: str,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
+    session=await get_session_by_id(db,user.id,character_id)
     return success_response(data=jsonable_encoder(session))
 
 @router.post("/list")

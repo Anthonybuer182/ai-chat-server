@@ -13,7 +13,7 @@ router = APIRouter()
 
 @router.post("/create")
 async def create(request:SessionRequest,user: UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
-    session = await create_session(db=db,user=user,session=request)
+    session = await create_session(db=db,user_id=user.id,session=request)
     return success_response(data=jsonable_encoder(session))
 
 @router.post("/delete/{character_id}")

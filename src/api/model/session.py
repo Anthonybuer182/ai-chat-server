@@ -1,5 +1,5 @@
 from pyexpat.errors import messages
-from typing import Optional
+from typing import List,Optional
 from pydantic import BaseModel, Field, field_validator
 
 from src.api.model.pagination import PaginationRequest
@@ -8,7 +8,7 @@ from src.api.model.pagination import PaginationRequest
 
 class SessionRequest(BaseModel):
     id: Optional[str] = Field(None, max_length=36, description="Session ID with max 36")
-    character_id: str = Field(..., max_length=36,description="Character ID cannot be empty and with max 36")  # 必填字段
+    character_id: str = Field(..., max_length=36,description="Character ID cannot be empty and with max 36")
     new_message: Optional[str] = Field(None, description="New message from the user (optional)")
     messages_context: Optional[str] = Field(None, description="Context of previous messages (optional)")
     @field_validator("character_id")

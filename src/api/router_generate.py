@@ -19,10 +19,8 @@ router = APIRouter()
 
 @router.post("/text")
 async def text(request:MessageRequest,user:UserDB = Depends(get_user),db: AsyncSession = Depends(get_db)):
-    session = await get_session_by_id(db, user_id=user.id, character_id=request.character_id)
-    if not session:
-        return failure_response(message="session not found")  
-    
+    session = await get_session_by_id(db, user_id=user.id, character_id=request.character_id) 
+    messages_context = session.messages_context if session else None
     character = await get_character_by_id(db,request.character_id)
     if not character:
         return failure_response(message="character not found")
@@ -35,7 +33,7 @@ async def text(request:MessageRequest,user:UserDB = Depends(get_user),db: AsyncS
             content=message.content,
             created_at=message.created_at
         ) for message in  reversed(messages)]
-    ai = AsyncAIChat(model=request.model,system_prompt=request.system_prompt or character.system_prompt,messages_context=session.messages_context,recent_messages=recent_messages)
+    ai = AsyncAIChat(model=request.model,system_prompt=request.system_prompt or character.system_prompt,messages_context=messages_context,recent_messages=recent_messages)
     if request.stream:
         async def generate():
             async for chunk in await ai(request.user_prompt, request.stream):

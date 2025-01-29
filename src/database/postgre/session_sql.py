@@ -11,8 +11,8 @@ from src.database.postgre.model.user import UserDB
 from src.api.model.pagination import PaginationResponse
 from src.api.model.session import SessionListRequest, SessionRequest
 
-async def create_session(db: AsyncSession,user:UserDB ,session: SessionRequest):
-    db_session = SessionDB(id=uuid.uuid4(),user_id=user.id,user_name=user.username,**session.model_dump(exclude={"id"}))
+async def create_session(db: AsyncSession,user_id:str,session: SessionRequest):
+    db_session = SessionDB(user_id=user_id,**session.model_dump(exclude={"id"}))
     db.add(db_session)
     await db.commit()
     await db.refresh(db_session)
@@ -51,9 +51,32 @@ async def get_session_by_id(db: AsyncSession,user_id:str, character_id: str):
         result = await db.execute(select(SessionDB).filter(SessionDB.user_id == user_id,SessionDB.character_id == character_id))
         return result.scalars().first()
     
-async def get_session_list(db: AsyncSession,user_id: str, sessionList: SessionListRequest) -> PaginationResponse[dict]:
-    base_query = select(SessionDB)
+from sqlalchemy.orm import aliased, load_only
+from sqlalchemy import select, func
+from math import ceil
 
+
+async def get_session_list(db: AsyncSession, user_id: str, sessionList: SessionListRequest) -> PaginationResponse[dict]:
+    # 创建 characters 表的别名
+    CharacterAlias = aliased(CharacterDB)
+
+    # 基础查询，关联 sessions 表和 characters 表
+    base_query = select(
+        SessionDB.id,
+        SessionDB.user_id,
+        SessionDB.character_id,
+        SessionDB.new_message,
+        SessionDB.created_at,
+        SessionDB.updated_at,
+        CharacterAlias.name.label("character_name"),
+        CharacterAlias.avatars.label("character_avatars")
+    ).join(
+        CharacterAlias,
+        SessionDB.character_id == CharacterAlias.id,
+        isouter=True  # 使用 LEFT JOIN，确保即使没有匹配的 characters 记录，sessions 记录仍然会被返回
+    )
+
+    # 根据 character_id 过滤
     if sessionList.character_id is not None:
         base_query = base_query.filter(SessionDB.character_id == sessionList.character_id)
     if user_id:
@@ -67,12 +90,14 @@ async def get_session_list(db: AsyncSession,user_id: str, sessionList: SessionLi
     paginated_query = base_query.offset(offset).limit(sessionList.page_size)
 
     result = await db.execute(paginated_query)
-    records = result.scalars().all()
+    records = result.all()  # 使用 .all() 而不是 .scalars().all()
 
     total_pages = ceil(total / sessionList.page_size) if total > 0 else 0
 
-    response_records = [record.__dict__ for record in records]
+    # 使用 ._asdict() 将 Row 对象转换为字典
+    response_records = [record._asdict() for record in records]
     
+    # 移除 SQLAlchemy 内部状态（如果有）
     for record in response_records:
         record.pop('_sa_instance_state', None)
 

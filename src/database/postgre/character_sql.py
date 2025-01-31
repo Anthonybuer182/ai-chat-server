@@ -55,30 +55,36 @@ async def get_character_by_id(db: AsyncSession, character_id: str):
         result = await db.execute(select(CharacterDB).filter(CharacterDB.id == character_id))
         return result.scalars().first()
 
-async def get_character_list(db: AsyncSession, characterList: CharacterListRequest,user_id: str=None) -> PaginationResponse[dict]:
-    base_query = select(CharacterDB)
+from sqlalchemy import select, func
+from math import ceil
+
+async def get_character_list(db: AsyncSession, characterList: CharacterListRequest, user_id: str = None) -> PaginationResponse[dict]:
+    # 只选择需要的字段
+    base_query = select(CharacterDB.id, CharacterDB.name, CharacterDB.avatars)
 
     if hasattr(characterList, 'visibility') and characterList.visibility:
         base_query = base_query.filter(CharacterDB.visibility == characterList.visibility)
     if user_id:
         base_query = base_query.filter(CharacterDB.user_id == user_id)
 
+    # 计算总数
     count_query = base_query.with_only_columns(func.count()).order_by(None)
     total_result = await db.execute(count_query)
     total = total_result.scalar()
 
+    # 分页
     offset = (characterList.page - 1) * characterList.page_size
     paginated_query = base_query.offset(offset).limit(characterList.page_size)
 
+    # 执行查询
     result = await db.execute(paginated_query)
-    records = result.scalars().all()
+    records = result.all()  # 使用 all() 而不是 scalars()，因为我们只选择了部分字段
 
+    # 计算总页数
     total_pages = ceil(total / characterList.page_size) if total > 0 else 0
 
-    response_records = [record.__dict__ for record in records]
-    
-    for record in response_records:
-        record.pop('_sa_instance_state', None)
+    # 将结果转换为字典
+    response_records = [{"id": record.id, "name": record.name, "avatars": record.avatars} for record in records]
 
     return PaginationResponse[dict](
         total=total,
